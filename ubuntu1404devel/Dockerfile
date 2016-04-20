@@ -57,5 +57,7 @@ RUN apt-get -y update \
         syslinux \
         syslinux-common \
         wget \
+        bc \
+        linux-headers-$(uname -r) \
     && apt-get clean
 
