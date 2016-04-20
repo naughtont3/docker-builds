@@ -54,5 +54,8 @@ RUN apt-get -y update \
         ncurses-bin \
         ncurses-term \
         genisoimage \
+        syslinux \
+        syslinux-common \
+        wget \
     && apt-get clean
 
