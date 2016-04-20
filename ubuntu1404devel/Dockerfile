@@ -40,6 +40,7 @@ RUN apt-get -y update \
         cmake \
         gcc \
         g++ \
+        gfortran \
         git \
         vim \
         exuberant-ctags \
@@ -58,6 +59,11 @@ RUN apt-get -y update \
         syslinux-common \
         wget \
         bc \
+        binutils-dev \
+        binutils-static \
+        libiberty-dev \
+        libboost-dev \
+        libboost1.54-dev \
         linux-headers-$(uname -r) \
     && apt-get clean
 
