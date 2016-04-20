@@ -54,6 +54,7 @@ RUN apt-get -y update \
         ncurses-bin \
         ncurses-bin \
         ncurses-term \
+        libncurses5-dev \
         genisoimage \
         syslinux \
         syslinux-common \
@@ -64,6 +65,7 @@ RUN apt-get -y update \
         libiberty-dev \
         libboost-dev \
         libboost1.54-dev \
+        zlib1g-dev \
         linux-headers-$(uname -r) \
     && apt-get clean
 
