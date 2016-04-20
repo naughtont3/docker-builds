@@ -38,6 +38,12 @@ Useful Docker Commands
   docker rm -v devel_ve
 ```
 
+- Build/Upload image:
+```
+    docker build -t="naughtont3/ubuntu1404devel" .
+    docker push naughtont3/ubuntu1404devel 
+```
+
 Misc. Notes
 -----------
 - Show version of tools using ```show-dev-tools.sh```
