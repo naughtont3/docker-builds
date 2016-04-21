@@ -11,6 +11,7 @@ tool_list="m4
            gcc
            g++
            git
+           gdb
            vim
            ctags 
            qemu-x86_64-system

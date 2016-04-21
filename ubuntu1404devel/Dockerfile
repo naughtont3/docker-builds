@@ -42,6 +42,10 @@ RUN apt-get -y update \
         g++ \
         gfortran \
         git \
+        gdb \
+        gdbserver \
+        net-tools \
+        iproute2 \
         vim \
         exuberant-ctags \
         qemu-user-static \
@@ -50,6 +54,7 @@ RUN apt-get -y update \
         libc-bin \
         strace \
         openssh-client \
+        telnet \
         ncurses-base \
         ncurses-bin \
         ncurses-bin \
