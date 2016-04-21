@@ -47,6 +47,7 @@ RUN apt-get -y update \
         gfortran \
         git \
         iproute2 \
+        iputils-ping \
         libc-bin \
         libiberty-dev \
         libncurses5-dev \

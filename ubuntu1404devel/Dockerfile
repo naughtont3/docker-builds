@@ -47,6 +47,7 @@ RUN apt-get -y update \
         gfortran \
         git \
         iproute2 \
+        iputils-ping \
         libboost1.54-dev \
         libboost-dev \
         libc-bin \
