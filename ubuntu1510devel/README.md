@@ -6,6 +6,17 @@ A "developer container" based on Ubuntu 15.10 (Wily).
 This is a container with the standard packages that we use for development,
 i.e., compilers, qemu, etc.
 
+Note, kernel headers/source should be installed manually at runtime,
+or passed via bind-mounts from the host.
+
+For example, to bind-mount kernel headers/source from host into a container:
+```
+  docker run -ti \
+      -v /usr/src:/usr/src \
+      -v /lib/modules:/lib/modules
+      naughtont3/ubuntu1510devel /bin/bash
+```
+
 See also Docker Hub repo
 https://hub.docker.com/r/naughtont3/ubuntu1510devel/
 

@@ -47,13 +47,10 @@ RUN apt-get -y update \
         gfortran \
         git \
         iproute2 \
-        libboost1.54-dev \
-        libboost-dev \
         libc-bin \
         libiberty-dev \
         libncurses5-dev \
         libtool \
-        linux-headers-$(uname -r) \
         m4 \
         make \
         ncurses-base \
