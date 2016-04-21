@@ -32,45 +32,45 @@ ADD show-dev-tools.sh /projects/show-dev-tools.sh
 
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
-        m4 \
         autoconf \
         automake \
-        libtool \
-        make \
+        bc \
+        binutils-dev \
+        binutils-static \
         cmake \
-        gcc \
+        exuberant-ctags \
         g++ \
-        gfortran \
-        git \
+        gcc \
         gdb \
         gdbserver \
-        net-tools \
+        genisoimage \
+        gfortran \
+        git \
         iproute2 \
-        vim \
-        exuberant-ctags \
-        qemu-user-static \
-        rsync \
-        sudo \
+        libboost1.54-dev \
+        libboost-dev \
         libc-bin \
-        strace \
-        openssh-client \
-        telnet \
+        libiberty-dev \
+        libncurses5-dev \
+        libtool \
+        linux-headers-$(uname -r) \
+        m4 \
+        make \
         ncurses-base \
         ncurses-bin \
         ncurses-bin \
         ncurses-term \
-        libncurses5-dev \
-        genisoimage \
+        net-tools \
+        openssh-client \
+        qemu-user-static \
+        rsync \
+        strace \
+        sudo \
         syslinux \
         syslinux-common \
+        telnet \
+        vim \
         wget \
-        bc \
-        binutils-dev \
-        binutils-static \
-        libiberty-dev \
-        libboost-dev \
-        libboost1.54-dev \
         zlib1g-dev \
-        linux-headers-$(uname -r) \
     && apt-get clean
 
