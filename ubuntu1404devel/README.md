@@ -1,7 +1,7 @@
 ubuntu1404devel
 ---------------
 
-A "developer container".
+A "developer container" based on Ubuntu 14.04 (Trusty).
 
 This is a container with the standard packages that we use for development,
 i.e., compilers, qemu, etc.
@@ -51,6 +51,6 @@ Misc. Notes
   docker exec -ti devel_ve  /bin/bash
 
    # Run script from within container
-  /projects/show-dev-tools.sh
+  /usr/local/bin/show-dev-tools.sh
 ```
 

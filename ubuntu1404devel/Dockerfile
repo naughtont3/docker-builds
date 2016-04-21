@@ -26,9 +26,9 @@ FROM ubuntu:14.04
 
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
-CMD ["mkdir","-p","/projects"]
+CMD ["mkdir","-p","/usr/local/bin"]
 
-ADD show-dev-tools.sh /projects/show-dev-tools.sh
+ADD show-dev-tools.sh /usr/local/bin/show-dev-tools.sh
 
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
