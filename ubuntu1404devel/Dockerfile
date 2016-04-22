@@ -44,6 +44,7 @@ RUN apt-get -y update \
         bc \
         binutils-dev \
         binutils-static \
+        bzip2 \
         cmake \
         exuberant-ctags \
         g++ \
