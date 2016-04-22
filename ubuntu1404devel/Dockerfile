@@ -48,7 +48,6 @@ RUN apt-get -y update \
         git \
         iproute2 \
         iputils-ping \
-        isolinux \
         libboost1.54-dev \
         libboost-dev \
         libc-bin \
