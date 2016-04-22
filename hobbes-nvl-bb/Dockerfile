@@ -57,12 +57,17 @@ RUN apt-get -y update \
         zlib1g-dev \
     && apt-get clean
 
+
 # install Hobbes NVL and build BusyBox Guest with MPI
-RUN export NVL_URL=http://github.com/HobbesOSR/nvl.git \
-    && export NVL_SOURCE_DIR=${PREFIX}/nvl \
+# Note: we clean any previous nvl dirs to make build idempotent
+RUN export NVL_URL=http://github.com/HobbesOSR/nvl.git && \
+    export NVL_SOURCE_DIR=${PREFIX}/nvl && \
+    if [ "x${NVL_SOURCE_DIR}" != "x" ] && [ -e "${NVL_SOURCE_DIR}" ] ; then \
+    rm -rf ${NVL_SOURCE_DIR} ; fi \
     && git clone ${NVL_URL} ${NVL_SOURCE_DIR} \
+    && cd ${NVL_SOURCE_DIR} \
     && ${NVL_SOURCE_DIR}/scripts/full_devel_checkout.sh \
-    && cd ${NVL_SOURCE_DIR}/nvl/src/guests/simple_busybox \
+    && cd ${NVL_SOURCE_DIR}/src/guests/simple_busybox \
     && ./build.pl --build-kernel \
     && ./build.pl --build-busybox \
     && ./build.pl --build-dropbear \
