@@ -35,7 +35,7 @@
 #         qemu-system-x86_64 -cdrom ./image.iso -m 2048 -smp 4 -serial stdio
 ###########################################################################
 
-FROM naughtont3/hobbes-nvl-bb
+FROM naughtont3/ubuntu1510devel
 
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
