@@ -48,6 +48,7 @@ RUN apt-get -y update \
         git \
         iproute2 \
         iputils-ping \
+        isolinux \
         libc-bin \
         libiberty-dev \
         libncurses5-dev \
