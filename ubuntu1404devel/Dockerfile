@@ -32,7 +32,8 @@ ADD show-dev-tools.sh /usr/local/bin/show-dev-tools.sh
 
 # Get certs so HTTPS requests (e.g., git clone's) work.
 RUN apt-get -y update \
-    && apt-get install ca-certificates \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
     && apt-get clean
 
 # Install various packages that are generally used for devel
