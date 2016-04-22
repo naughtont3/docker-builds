@@ -47,7 +47,9 @@ Useful Hobbes Commands
 ----------------------
 - Running the guest VM (image.iso) in qemu (within container)
   ```
-  qemu-system-x86_64 -cdrom ./image.iso -m 2048 -smp 4 -serial stdio
+  host:$ docker exec -ti naughtont3/hobbes-nvl-bb /bin/bash
+  container:# cd /hobbes/nvl/src/guests/simple_busybox/
+  container:# qemu-system-x86_64 -cdrom ./image.iso -m 2048 -smp 4 -serial stdio
   ```
 
 Misc. Notes

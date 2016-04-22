@@ -42,6 +42,13 @@ MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 ENV PREFIX=/hobbes
 CMD ["mkdir","-p","${PREFIX}"]
 
+# Get certs so HTTPS requests (e.g., git clone's) work.
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+    && apt-get clean
+
+# Install various useful/prereq packages 
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
         git \
