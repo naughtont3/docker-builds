@@ -1,6 +1,8 @@
 hobbes-nvl-bb
 ---------------
 
+***NOTE*** This is ``in progress'' / incomplete.
+
 A "Hobbes developer container" based on Ubuntu,
 with a full Hobbes Developer environment, to include
 a BusyBox Guest VM image containing MPI.
