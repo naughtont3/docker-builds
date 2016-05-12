@@ -33,40 +33,47 @@ https://hub.docker.com/r/naughtont3/hobbes-nvl-bb/
 Useful Docker Commands
 ----------------------
 - Run image (start container) in ''daemon'' mode:
-```
+
+  ```
  docker run -d -P --name <NAME> naughtont3/hobbes-nvl-bb /bin/sleep infinity
-```
+  ```
 
 - Run image (start container) in ''daemon'' mode with bind-mounted host dir:
-```
+
+  ```
   docker run -d -P --name hobbes_bb \
            -v /home/data:/data  naughtont3/hobbes-nvl-bb /bin/sleep infinity
-```
+  ```
 
 - Attach to the running container (assuming name ''hobbes_bb''):
-```
+
+  ```
   docker exec -ti hobbes_bb  /bin/bash
-```
+  ```
 
 - (Alternate) Run image (start container) directly (non-daemon mode):
-```
+
+  ```
   docker exec -ti naughtont3/hobbes-nvl-bb /bin/bash
-```
+  ```
 
 - Removing the container (and their volumes to avoid dangling volumes!)
-```
+
+  ```
   docker rm -v hobbes_bb
-```
+  ```
 
 - Build/Upload image:
-```
+
+    ```
     docker build -t="naughtont3/hobbes-nvl-bb" .
     docker push naughtont3/hobbes-nvl-bb 
-```
+    ```
 
 Useful Hobbes Commands
 ----------------------
 - Running the guest VM (image.iso) in qemu (within container)
+
   ```
   host:$ docker exec -ti naughtont3/hobbes-nvl-bb /bin/bash
   container:# cd /hobbes/nvl/src/guests/simple_busybox/
@@ -76,16 +83,18 @@ Useful Hobbes Commands
 Misc. Notes
 -----------
 - Show version of tools using ```show-dev-tools.sh```
-```
+
+  ```
   docker exec -ti hobbes_bb  /bin/bash
 
    # Run script from within container
   /usr/local/bin/show-dev-tools.sh
-```
+  ```
 
 - Kernel Source/Headers - kernel headers/source should be installed manually 
   at runtime, or passed via bind-mounts from the host.
   For example, to bind-mount kernel headers/source from host into a container:
+
   ```
     docker run -ti \
         -v /usr/src:/usr/src \
