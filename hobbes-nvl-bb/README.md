@@ -3,6 +3,25 @@ hobbes-nvl-bb
 
 ***NOTE*** This is ``in progress'' / incomplete.
 
+STATUS UPDATES:
+ - 12may2016: Still having problems with downloads/build that stops
+              full container build.  So for now, I'm just downloading
+              the full source and installing dependencies.
+              Then you can run the 'build-hacked.pl' or 'BUILDIT.sh' script 
+              from within the container (see comments for possible edits).
+              Note, BUILDIT.sh is just a wrapper on the 'build-hacked.pl' 
+              script.  The 'build-hacked.pl' script has updates/work-arounds 
+              that I've found helpful, e.g., can build guest image if didn't 
+              compile Pisces or Palacios, adds customized passwd file to 
+              guest image.
+
+    ```
+    TJN: STOPPING EARLY - WILL NEED TO RUN BUILD-HACKED.PL MANUALLY
+    TJN: SEE BUILDIT.sh wrapper script for example.
+    TJN: SEE /hobbes/nvl/src/guests/simple_busybox
+    ```
+
+
 A "Hobbes developer container" based on Ubuntu,
 with a full Hobbes Developer environment, to include
 a BusyBox Guest VM image containing MPI.
