@@ -26,7 +26,7 @@ FROM ubuntu:14.04
 
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
-CMD ["mkdir","-p","/opt/virt-testing"]
+CMD ["mkdir","-p","/opt/virt"]
 
 # NOTE: If change '/opt/virt/' path, update qemuboot script!
 ADD qemuboot-iso.sh /opt/virt/qemuboot-iso.sh
