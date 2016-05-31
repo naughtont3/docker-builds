@@ -19,6 +19,12 @@ Description
     2. Mgmt.root, Mgmt.qemuuser
     3. Guest.root, Guest.user1, Guest.user2
 
+Objective
+---------
+ - Test to see if we can run QEMU w/ VirtFS as root within VE,
+   i.e., Mgmt.root(qemu), and have proper handling in Guest
+   for User1 and User2 when using VirtFS with the 'passthrough' model.
+
 Host Operations
 ---------------
   1. Host.root: mkdir /var/tmp/users/
