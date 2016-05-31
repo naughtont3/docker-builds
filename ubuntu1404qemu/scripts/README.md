@@ -62,29 +62,29 @@ VM(Guest) Operations
   2. Guest.root: ls    /mnt/hostshare
 
 
-    # Read as root
-  - Guest.root: cat   /mnt/hostshare/host_allusers_hello_file
-  - Guest.root: cat   /mnt/hostshare/users1/host_user1_hello_file
-  - Guest.root: cat   /mnt/hostshare/users2/host_user2_hello_file
+  - Read as root
+    - Guest.root: cat   /mnt/hostshare/host_allusers_hello_file
+    - Guest.root: cat   /mnt/hostshare/users1/host_user1_hello_file
+    - Guest.root: cat   /mnt/hostshare/users2/host_user2_hello_file
 
-    # Create as root
-  - Guest.root: touch /mnt/hostshare/users/guest_allusers_root_file
-  - Guest.root: touch /mnt/hostshare/user1/guest_user1_root_file
-  - Guest.root: touch /mnt/hostshare/user2/guest_user2_root_file
+  - Create as root
+    - Guest.root: touch /mnt/hostshare/users/guest_allusers_root_file
+    - Guest.root: touch /mnt/hostshare/user1/guest_user1_root_file
+    - Guest.root: touch /mnt/hostshare/user2/guest_user2_root_file
 
-    # Write as root
-  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/users/guest_allusers_root_file
-     - NOTE: If Mgmt.qemuuser,then  should fail.
-     - NOTE: If Mgmt.root, then should pass.
-
-  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user1/guest_user1_root_file
-     - NOTE: If Mgmt.qemuuser,then should fail.
-     - NOTE: If Mgmt.root, then should pass.
-
-  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user2/guest_user2_root_file
-     - NOTE: If Mgmt.qemuuser,then should fail.
-     - NOTE: If Mgmt.root, then should pass.
-
+  - Write as root
+    - Guest.root: echo "Guest root hello" >> /mnt/hostshare/users/guest_allusers_root_file
+       - NOTE: If Mgmt.qemuuser,then  should fail.
+       - NOTE: If Mgmt.root, then should pass.
+  
+    - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user1/guest_user1_root_file
+       - NOTE: If Mgmt.qemuuser,then should fail.
+       - NOTE: If Mgmt.root, then should pass.
+  
+    - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user2/guest_user2_root_file
+       - NOTE: If Mgmt.qemuuser,then should fail.
+       - NOTE: If Mgmt.root, then should pass.
+  
 
     ```
     # Read as userX
