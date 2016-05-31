@@ -24,3 +24,9 @@ NOTES
     For now, I am just keeping that path the same in the Docker context,
     i.e., bind mount arg for Docker is "-v /var/tmp/users:/var/tmp/users"
 
+QUESTION
+--------
+  - Q1: What permissions/ownership should the base host share dir have,
+        i.e., /var/tmp/users?
+        This has bearing on who starts the Docker VE when passing bind mounts.
+      
