@@ -30,13 +30,13 @@ Host Operations
   7. Host.root: chmod a+r   /var/tmp/users/host_allusers_hello_file
   8. Host.root: chmod og-w  /var/tmp/users/host_allusers_hello_file
   9. Host.root: chmod u+rwx /var/tmp/users/user1
- 10. Host.root: chmod u+rwx /var/tmp/users/user2
- 11. Host.root: chmod u+rw  /var/tmp/users/user1/host_user1_hello_file
- 12. Host.root: chmod u+rw  /var/tmp/users/user2/host_user2_hello_file
- 13. Host.root: useradd -u 1010 -g 1010 user1
- 14. Host.root: useradd -u 2020 -g 2020 user2
- 15. Host.root: chown -R user1.user1 /var/tmp/users/user1
- 16. Host.root: chown -R user2.user2 /var/tmp/users/user2
+  10. Host.root: chmod u+rwx /var/tmp/users/user2
+  11. Host.root: chmod u+rw  /var/tmp/users/user1/host_user1_hello_file
+  12. Host.root: chmod u+rw  /var/tmp/users/user2/host_user2_hello_file
+  13. Host.root: useradd -u 1010 -g 1010 user1
+  14. Host.root: useradd -u 2020 -g 2020 user2
+  15. Host.root: chown -R user1.user1 /var/tmp/users/user1
+  16. Host.root: chown -R user2.user2 /var/tmp/users/user2
 
 
 VE(Container) Operations
@@ -61,32 +61,32 @@ VM(Guest) Operations
   1. Guest.root: mount /mnt/hostshare
   2. Guest.root: ls    /mnt/hostshare
 
-  ```
 
     # Read as root
-  3. Guest.root: cat   /mnt/hostshare/host_allusers_hello_file
-  *. Guest.root: cat   /mnt/hostshare/users1/host_user1_hello_file
-  *) Guest.root: cat   /mnt/hostshare/users2/host_user2_hello_file
+  - Guest.root: cat   /mnt/hostshare/host_allusers_hello_file
+  - Guest.root: cat   /mnt/hostshare/users1/host_user1_hello_file
+  - Guest.root: cat   /mnt/hostshare/users2/host_user2_hello_file
 
     # Create as root
-  *) Guest.root: touch /mnt/hostshare/users/guest_allusers_root_file
-  *) Guest.root: touch /mnt/hostshare/user1/guest_user1_root_file
-  *) Guest.root: touch /mnt/hostshare/user2/guest_user2_root_file
+  - Guest.root: touch /mnt/hostshare/users/guest_allusers_root_file
+  - Guest.root: touch /mnt/hostshare/user1/guest_user1_root_file
+  - Guest.root: touch /mnt/hostshare/user2/guest_user2_root_file
 
     # Write as root
-  *) Guest.root: echo "Guest root hello" >> /mnt/hostshare/users/guest_allusers_root_file
-       NOTE: If Mgmt.qemuuser,then  should fail.
-       NOTE: If Mgmt.root, then should pass.
+  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/users/guest_allusers_root_file
+     - NOTE: If Mgmt.qemuuser,then  should fail.
+     - NOTE: If Mgmt.root, then should pass.
 
-  *) Guest.root: echo "Guest root hello" >> /mnt/hostshare/user1/guest_user1_root_file
-       NOTE: If Mgmt.qemuuser,then should fail.
-       NOTE: If Mgmt.root, then should pass.
+  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user1/guest_user1_root_file
+     - NOTE: If Mgmt.qemuuser,then should fail.
+     - NOTE: If Mgmt.root, then should pass.
 
-  *) Guest.root: echo "Guest root hello" >> /mnt/hostshare/user2/guest_user2_root_file
-       NOTE: If Mgmt.qemuuser,then should fail.
-       NOTE: If Mgmt.root, then should pass.
+  - Guest.root: echo "Guest root hello" >> /mnt/hostshare/user2/guest_user2_root_file
+     - NOTE: If Mgmt.qemuuser,then should fail.
+     - NOTE: If Mgmt.root, then should pass.
 
 
+    ```
     # Read as userX
     # Create as userX
     # Write as userX
@@ -96,5 +96,5 @@ VM(Guest) Operations
      Guest.$myuser: echo "Guest $myuser hello" >> /mnt/hostshare/user1/guest_user1_root_file
      Guest.$myuser: echo "Guest $myuser hello" >> /mnt/hostshare/user2/guest_user2_root_file
   done
+    ```
 
-  ```
