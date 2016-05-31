@@ -14,6 +14,24 @@ NOTES
     For now, I am just testing by running from within VE 
     (i.e., "docker exec -ti devel_qemu bash")
 
+     ```
+        pokey:$ ssh -p 10027 localhost
+        ssh: connect to host localhost port 10027: Connection refused
+        pokey:$ sudo netstat -tunap | grep 10027
+        [sudo] password for tjn: 
+        pokey:$ docker exec -ti devel_qemu bash
+        root@d430d29bcad8:/# which netstat
+        /bin/netstat
+        root@d430d29bcad8:/# netstat -tunap | grep 10027
+        tcp        0      0 0.0.0.0:10027           0.0.0.0:*               LISTEN
+        32/qemu-system-x86_
+        tcp        0      0 127.0.0.1:57863         127.0.0.1:10027
+        TIME_WAIT   -               
+        root@d430d29bcad8:/# ssh -p 10027 localhost
+        root@localhost's password:
+        ~ # 
+     ```
+
   - Note, see QEMU variable in 'mgmtVE_setup.sh' for setting if using
     QEMU (emulation) or QEMU/KVM (hardware enabled).
 
