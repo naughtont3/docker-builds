@@ -29,10 +29,10 @@ MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 CMD ["mkdir","-p","/opt/virt"]
 
 # NOTE: If change '/opt/virt/' path, update qemuboot script!
-ADD qemuboot-iso.sh /opt/virt/qemuboot-iso.sh
+COPY qemuboot-iso.sh /opt/virt/qemuboot-iso.sh
 
 # NOTE: If change '/opt/virt/' path, update qemuboot script!
-ADD 9p_image.iso    /opt/virt/9p_image.iso
+COPY 9p_image.iso    /opt/virt/9p_image.iso
 
 
 # Get certs so HTTPS requests (e.g., git clone's) work.
