@@ -17,9 +17,9 @@ die () {
 }
 
 create_user () {
-    $new_uname = $1
-    $new_uid   = $2
-    $new_gid   = $3
+    new_uname=$1
+    new_uid=$2
+    new_gid=$3
 
     which groupadd 2>&1 >/dev/null    || die "Missing 'groupadd' executable"
     which useradd  2>&1 >/dev/null    || die "Missing 'useradd' executable"

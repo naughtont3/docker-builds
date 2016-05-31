@@ -1,0 +1,172 @@
+root@d430d29bcad8:/# ssh -p 10027 localhost
+root@localhost's password: 
+~ # cd /opt/scripts/
+/opt/scripts # ls
+9p-scripts          9pmount.sh          addguest.sh
+9pload.sh           README              bootguestvm-iso.sh
+/opt/scripts # ./9pload.sh 
+9p
+9pnet
+9pnet_virtio
+/opt/scripts # ./9pmount.sh 
+/opt/scripts # ls /mnt/hostshare/
+host_allusers_hello_file  user1                     user2
+/opt/scripts # pushd /mnt/hostshare/
+-sh: pushd: not found
+/opt/scripts # ls
+9p-scripts          9pmount.sh          addguest.sh
+9pload.sh           README              bootguestvm-iso.sh
+/opt/scripts # cd /mnt/hostshare/
+/mnt/hostshare # ls
+host_allusers_hello_file  user1                     user2
+/mnt/hostshare # cat host_allusers_hello_file 
+Hello ALL-USERS
+/mnt/hostshare # cat user
+user1/  user2/
+/mnt/hostshare # cat user1/host_user1_
+host_user1_hello_file    host_user1_private_file
+/mnt/hostshare # cat user1/host_user1_hello_file 
+Hello user1 (USER1)
+/mnt/hostshare # cat user1/host_user1_private_file 
+Read-ONLY by user1 (USER1)
+/mnt/hostshare # cat user2/host_user2_private_file 
+Read-ONLY by user2 (USER2)
+/mnt/hostshare # ls -l /mnt/hostshare/
+total 12
+-rwxr--r--    1 root     root            16 May 31 20:14 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:14 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:14 user2
+/mnt/hostshare # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare # ls -l /mnt/hostshare/user1/
+total 8
+-rw-r--r--    1 1010     1010            20 May 31 20:14 host_user1_hello_file
+-rw-------    1 1010     1010            27 May 31 20:14 host_user1_private_file
+/mnt/hostshare # ls -l /mnt/hostshare/user2/
+total 8
+-rw-r--r--    1 2020     2020            20 May 31 20:14 host_user2_hello_file
+-rw-------    1 2020     2020            27 May 31 20:14 host_user2_private_file
+/mnt/hostshare # cat /mnt/hostshare/user2/host_user2_private_file 
+Read-ONLY by user2 (USER2)
+/mnt/hostshare # ls
+host_allusers_hello_file  user1                     user2
+/mnt/hostshare # touch guest_allusers_foo_file
+/mnt/hostshare # ls -l
+total 12
+-rw-r--r--    1 root     root             0 May 31 20:27 guest_allusers_foo_file
+-rwxr--r--    1 root     root            16 May 31 20:14 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:14 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:14 user2
+/mnt/hostshare # cd user1/
+/mnt/hostshare/user1 # ls
+host_user1_hello_file    host_user1_private_file
+/mnt/hostshare/user1 # ls -l
+total 8
+-rw-r--r--    1 1010     1010            20 May 31 20:14 host_user1_hello_file
+-rw-------    1 1010     1010            27 May 31 20:14 host_user1_private_file
+/mnt/hostshare/user1 # cd ..
+/mnt/hostshare # ls
+guest_allusers_foo_file   user1
+host_allusers_hello_file  user2
+/mnt/hostshare # touch guest_root_allusers_foo_file
+/mnt/hostshare # echo "Hello from GUEST as ROOT" > guest_root_allusers_foo_file 
+/mnt/hostshare # echo "Hello from GUEST as ROOT" >> host_allusers_hello_file 
+/mnt/hostshare # cat host_allusers_hello_file 
+Hello ALL-USERS
+Hello from GUEST as ROOT
+/mnt/hostshare # cd user1/
+/mnt/hostshare/user1 # ls
+host_user1_hello_file    host_user1_private_file
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> host_user1_hello_file 
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> host_user1_private_fil
+e 
+/mnt/hostshare/user1 # touch guest_root_user1_foo_file
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> guest_root_user1_foo_f
+ile 
+/mnt/hostshare/user1 # ls -l
+total 12
+-rw-r--r--    1 root     root            25 May 31 20:29 guest_root_user1_foo_file
+-rw-r--r--    1 1010     1010            45 May 31 20:28 host_user1_hello_file
+-rw-------    1 1010     1010            52 May 31 20:28 host_user1_private_file
+/mnt/hostshare/user1 # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare/user1 # cat host_user1_hello_file 
+Hello user1 (USER1)
+Hello from GUEST as ROOT
+/mnt/hostshare/user1 # cat host_user1_private_file 
+Read-ONLY by user1 (USER1)
+Hello from GUEST as ROOT
+/mnt/hostshare/user1 # cd /opt/scripts/
+/opt/scripts # ls
+9p-scripts          9pmount.sh          addguest.sh
+9pload.sh           README              bootguestvm-iso.sh
+/opt/scripts # ./addguest.sh 
+Changing password for guest
+New password: 
+Bad password: too short
+Retype password: 
+Password for guest changed by root
+/opt/scripts # su - guest
+~ $ id
+uid=107(guest) gid=107(guest) groups=107(guest)
+~ $ cd /mnt/hostshare/
+/mnt/hostshare $ ls
+guest_allusers_foo_file       user1
+guest_root_allusers_foo_file  user2
+host_allusers_hello_file
+/mnt/hostshare $ ls -l
+total 16
+-rw-r--r--    1 root     root             0 May 31 20:27 guest_allusers_foo_file
+-rw-r--r--    1 root     root            25 May 31 20:28 guest_root_allusers_foo_file
+-rwxr--r--    1 root     root            41 May 31 20:28 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:29 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:14 user2
+/mnt/hostshare $ touch guest_guestuser_allusers_foo_file
+touch: guest_guestuser_allusers_foo_file: Permission denied
+/mnt/hostshare $ echo "Hello from GUEST as GUESTUSER(107)" >> host_allusers_hell
+o_file 
+-sh: can't create host_allusers_hello_file: Permission denied
+/mnt/hostshare $ echo "Hello from GUEST as GUESTUSER(107)" >> guest_root_alluser
+s_foo_file 
+-sh: can't create guest_root_allusers_foo_file: Permission denied
+/mnt/hostshare $ echo "Hello from GUEST as GUESTUSER(107)" >> guest_allusers_foo
+_file 
+-sh: can't create guest_allusers_foo_file: Permission denied
+/mnt/hostshare $ ls -l
+total 16
+-rw-r--r--    1 root     root             0 May 31 20:27 guest_allusers_foo_file
+-rw-r--r--    1 root     root            25 May 31 20:28 guest_root_allusers_foo_file
+-rwxr--r--    1 root     root            41 May 31 20:28 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:29 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:14 user2
+/mnt/hostshare $ cd user1/
+/mnt/hostshare/user1 $ ls -l
+total 12
+-rw-r--r--    1 root     root            25 May 31 20:29 guest_root_user1_foo_file
+-rw-r--r--    1 1010     1010            45 May 31 20:28 host_user1_hello_file
+-rw-------    1 1010     1010            52 May 31 20:28 host_user1_private_file
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER(107)" >> guest_root_u
+ser1_foo_file 
+-sh: can't create guest_root_user1_foo_file: Permission denied
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER(107)" >> host_user1_h
+ello_file 
+-sh: can't create host_user1_hello_file: Permission denied
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER(107)" >> host_user1_p
+rivate_file 
+-sh: can't create host_user1_private_file: Permission denied
+/mnt/hostshare/user1 $ cat host_user1_private_file 
+cat: can't open 'host_user1_private_file': Permission denied
+/mnt/hostshare/user1 $ cat host_user1_hello_file 
+Hello user1 (USER1)
+Hello from GUEST as ROOT
+/mnt/hostshare/user1 $ id
+uid=107(guest) gid=107(guest) groups=107(guest)
+/mnt/hostshare/user1 $ cd ..
+/mnt/hostshare $ exit
+/opt/scripts # exit
+Connection to localhost closed.
+root@d430d29bcad8:/# 
+root@d430d29bcad8:/#  ps auwx | grep qemu
+root        31  0.0  0.0  46008  1756 ?        S+   20:21   0:00 sudo /usr/bin/qemu-system-x86_64 -m 1024 -cdrom ./9p_image.iso -fsdev local,security_model=passthrough,id=fsdev0,path=/var/tmp/users -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=guest_share -net nic,model=virtio,macaddr=52:54:00:12:77:77 -net user,hostfwd=tcp::10027-:22 -vnc localhost:6
+root        32  7.0 13.2 2075896 476832 ?      Sl+  20:21   0:50 /usr/bin/qemu-system-x86_64 -m 1024 -cdrom ./9p_image.iso -fsdev local,security_model=passthrough,id=fsdev0,path=/var/tmp/users -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=guest_share -net nic,model=virtio,macaddr=52:54:00:12:77:77 -net user,hostfwd=tcp::10027-:22 -vnc localhost:6
+root@d430d29bcad8:/# 

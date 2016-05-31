@@ -1,0 +1,291 @@
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ rm -rf /var/tmp/users
+rm: cannot remove ‘/var/tmp/users/guest_allusers_foo_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/guest_root_allusers_foo_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/user1/guest_root_user1_foo_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/user1/host_user1_hello_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/user1/host_user1_private_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/user2/host_user2_private_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/user2/host_user2_hello_file’: Permission denied
+rm: cannot remove ‘/var/tmp/users/host_allusers_hello_file’: Permission denied
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ sudo rm -rf /var/tmp/users
+[sudo] password for tjn: 
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ ./scripts/host_setup.sh 
+ERROR: Must be run with root permissions! (EUID=1000)
+Usage: ./scripts/host_setup.sh
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ sudo ./scripts/host_setup.sh 
++ mkdir -p /var/tmp/users
++ mkdir -p /var/tmp/users/user1
++ mkdir -p /var/tmp/users/user2
++ echo 'Hello ALL-USERS'
++ echo 'Hello user1 (USER1)'
++ echo 'Hello user2 (USER2)'
++ echo 'Read-ONLY by user1 (USER1)'
++ echo 'Read-ONLY by user2 (USER2)'
++ chmod u+rwx /var/tmp/users
++ chmod og-w /var/tmp/users
++ chmod a+rx /var/tmp/users
++ chmod a+r /var/tmp/users/host_allusers_hello_file
++ chmod og-wx /var/tmp/users/host_allusers_hello_file
++ chmod u+rwx /var/tmp/users/user1
++ chmod u+rw /var/tmp/users/user1/host_user1_hello_file
++ chmod u+rw /var/tmp/users/user1/host_user1_private_file
+  chmod og-rwx /var/tmp/users/user1/host_user1_private_file
+? chmod u+rwx /var/tmp/users/user2
++ chmod u+rw /var/tmp/users/user2/host_user2_hello_file
++ chmod u+rw /var/tmp/users/user2/host_user2_private_file
++ chmod og-rxw /var/tmp/users/user2/host_user2_private_file
++ id user1
++ id user2
++ chown -R user1.user1 /var/tmp/users/user1
++ chown -R user2.user2 /var/tmp/users/user2
++ echo =========================
+=========================
++ id user1
+uid=1010(user1) gid=1010(user1) groups=1010(user1)
++ id user2
+uid=2020(user2) gid=2020(user2) groups=2020(user2)
++ ls -lR /var/tmp/users
+/var/tmp/users:
+total 12
+-rw-r--r-- 1 root  root    16 May 31 16:35 host_allusers_hello_file
+drwxr-xr-x 2 user1 user1 4096 May 31 16:35 user1
+drwxr-xr-x 2 user2 user2 4096 May 31 16:35 user2
+
+/var/tmp/users/user1:
+total 8
+-rw-r--r-- 1 user1 user1 20 May 31 16:35 host_user1_hello_file
+-rw------- 1 user1 user1 27 May 31 16:35 host_user1_private_file
+
+/var/tmp/users/user2:
+total 8
+-rw-r--r-- 1 user2 user2 20 May 31 16:35 host_user2_hello_file
+-rw------- 1 user2 user2 27 May 31 16:35 host_user2_private_file
++ exit 0
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ ls
+9p_image.iso  Dockerfile  dockerhub-build-push.sh  docker-run.sh  qemuboot-iso.sh  README.md  scripts
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ ./docker-run.sh 
++ MY_DOCKER_SHAREDIR=/home/tjn/docker/docker_share
++ MY_9PHOST_SHAREDIR=/var/tmp/users
++ [[ -d /home/tjn/docker/docker_share ]]
++ [[ -d /var/tmp/users ]]
++ docker run -d -P --name devel_qemu -v /home/tjn/docker/docker_share:/data -v /var/tmp/users:/var/tmp/users naughtont3/ubuntu1404qemu /bin/sleep infinity
+3cd9d6f743c5ce7b81ed60179a9e07b05e6d9669abdc70b03977fe1731f8db09
+tjn@pokey:~/docker/docker-builds/ubuntu1404qemu$ docker exec -ti devel_qemu bash
+root@3cd9d6f743c5:/# cd /opt/
+root@3cd9d6f743c5:/opt# ls
+virt
+root@3cd9d6f743c5:/opt# cd virt/
+root@3cd9d6f743c5:/opt/virt# ls
+9p_image.iso  mgmtVE_setup.sh  qemuboot-iso.sh
+root@3cd9d6f743c5:/opt/virt# ./mgmtVE_setup.sh 
+root@3cd9d6f743c5:/opt/virt# ./mgmtVE_setup.sh  
+ERROR: Missing ISO file ()
+Usage: ./mgmtVE_setup.sh ISOFILE [root]
+
+  ISOFILE   Path to ISO file for QEMU launch
+  root      (Optional) String used to request running QEMU as root
+
+root@3cd9d6f743c5:/opt/virt# 
+
+
+
+
+============================
+
+
+pokey:$ docker exec -ti devel_qemu bash
+root@3cd9d6f743c5:/# id qemuuser
+uid=107(qemuuser) gid=107(qemuuser) groups=107(qemuuser)
+root@3cd9d6f743c5:/# ls /var/tmp/   
+users
+root@3cd9d6f743c5:/# ls /var/tmp/users/
+host_allusers_hello_file  user1  user2
+root@3cd9d6f743c5:/# ls -l /var/tmp/users/
+total 12
+-rw-r--r-- 1 root root   16 May 31 20:35 host_allusers_hello_file
+drwxr-xr-x 2 1010 1010 4096 May 31 20:35 user1
+drwxr-xr-x 2 2020 2020 4096 May 31 20:35 user2
+
+
+root@3cd9d6f743c5:/# ssh -p 10027 localhost
+The authenticity of host '[localhost]:10027 ([127.0.0.1]:10027)' can't be established.
+RSA key fingerprint is 46:89:d4:5e:cf:14:23:06:bb:41:59:50:cb:1f:09:8f.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[localhost]:10027' (RSA) to the list of known hosts.
+root@localhost's password: 
+~ # ls
+~ # cd /opt/
+/opt # ls
+hobbes               scripts              tests
+hobbes_enclave_demo  simple_busybox
+/opt # cd scripts/
+/opt/scripts # ls
+9p-scripts          9pmount.sh          addguest.sh
+9pload.sh           README              bootguestvm-iso.sh
+/opt/scripts # ./9pload.sh 
+9p
+9pnet
+9pnet_virtio
+/opt/scripts # ls
+9p-scripts          9pmount.sh          addguest.sh
+9pload.sh           README              bootguestvm-iso.sh
+/opt/scripts # ./9pmount.sh 
+/opt/scripts # ls -l
+total 20
+drwxr-xr-x    2 root     root           180 May  9 19:27 9p-scripts
+-rwxr--r--    1 root     root           240 May  9 19:27 9pload.sh
+-rwxr--r--    1 root     root           139 May  9 19:27 9pmount.sh
+-rw-r--r--    1 root     root          2007 May  9 19:27 README
+-rwxr--r--    1 root     root            76 May  9 19:27 addguest.sh
+-rwxr--r--    1 root     root           456 May  9 19:27 bootguestvm-iso.sh
+/opt/scripts # cd ..
+/opt # ls
+hobbes               scripts              tests
+hobbes_enclave_demo  simple_busybox
+/opt # cd /mnt/hostshare/
+/mnt/hostshare # ls
+host_allusers_hello_file  user1                     user2
+/mnt/hostshare # ls -l
+total 12
+-rw-r--r--    1 root     root            16 May 31 20:35 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:35 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:35 user2
+/mnt/hostshare # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare # ls -l
+total 12
+-rw-r--r--    1 root     root            16 May 31 20:35 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:35 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:35 user2
+/mnt/hostshare # cat host_allusers_hello_file 
+Hello ALL-USERS
+/mnt/hostshare # cat user
+user1/  user2/
+/mnt/hostshare # cat user1/host_user1_
+host_user1_hello_file    host_user1_private_file
+/mnt/hostshare # cat user1/host_user1_hello_file 
+Hello user1 (USER1)
+/mnt/hostshare # cat user1/host_user1_private_file 
+cat: can't open 'user1/host_user1_private_file': Permission denied
+/mnt/hostshare # cat user2/host_user2_hello_file 
+Hello user2 (USER2)
+/mnt/hostshare # cat user2/host_user2_private_file 
+cat: can't open 'user2/host_user2_private_file': Permission denied
+/mnt/hostshare # ls -lR
+.:
+total 12
+-rw-r--r--    1 root     root            16 May 31 20:35 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:35 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:35 user2
+
+./user1:
+total 8
+-rw-r--r--    1 1010     1010            20 May 31 20:35 host_user1_hello_file
+-rw-------    1 1010     1010            27 May 31 20:35 host_user1_private_file
+
+./user2:
+total 8
+-rw-r--r--    1 2020     2020            20 May 31 20:35 host_user2_hello_file
+-rw-------    1 2020     2020            27 May 31 20:35 host_user2_private_file
+/mnt/hostshare # 
+/mnt/hostshare # 
+/mnt/hostshare # 
+/mnt/hostshare # echo "Hello from GUEST as ROOT" >> host_allusers_hello_file 
+-sh: can't create host_allusers_hello_file: Permission denied
+/mnt/hostshare # echo "Hello from GUEST as ROOT" >> guest_root_allusers_foo_file
+-sh: can't create guest_root_allusers_foo_file: Permission denied
+/mnt/hostshare # touch guest_root_allusers_foo_file
+touch: guest_root_allusers_foo_file: Permission denied
+/mnt/hostshare # cd user1/
+/mnt/hostshare/user1 # ls -l
+total 8
+-rw-r--r--    1 1010     1010            20 May 31 20:35 host_user1_hello_file
+-rw-------    1 1010     1010            27 May 31 20:35 host_user1_private_file
+/mnt/hostshare/user1 # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare/user1 # cat host_user1_hello_file 
+Hello user1 (USER1)
+/mnt/hostshare/user1 # cat host_user1_private_file 
+cat: can't open 'host_user1_private_file': Permission denied
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> host_user1_hello_file 
+-sh: can't create host_user1_hello_file: Permission denied
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> host_user1_private_fil
+e 
+-sh: can't create host_user1_private_file: Permission denied
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> guest_root_user1_foo_f
+ile
+-sh: can't create guest_root_user1_foo_file: Permission denied
+/mnt/hostshare/user1 # touch  guest_root_user1_foo_file
+touch: guest_root_user1_foo_file: Permission denied
+/mnt/hostshare/user1 # /opt/scripts/addguest.sh 
+Changing password for guest
+New password: 
+Bad password: too short
+Retype password: 
+Password for guest changed by root
+/mnt/hostshare/user1 # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare/user1 # su - guest
+~ $ cd /mnt/hostshare/
+/mnt/hostshare $ ls -l
+total 12
+-rw-r--r--    1 root     root            16 May 31 20:35 host_allusers_hello_file
+drwxr-xr-x    2 1010     1010          4096 May 31 20:35 user1
+drwxr-xr-x    2 2020     2020          4096 May 31 20:35 user2
+/mnt/hostshare $ id
+uid=107(guest) gid=107(guest) groups=107(guest)
+/mnt/hostshare $ cat host_allusers_hello_file 
+Hello ALL-USERS
+/mnt/hostshare $ echo "Hello from GUEST as GUESTUSER" >> host_allusers_hello_fil
+e 
+-sh: can't create host_allusers_hello_file: Permission denied
+/mnt/hostshare $ echo "Hello from GUEST as GUESTUSER" >> guest_guestuser_alluser
+s_foo_file
+-sh: can't create guest_guestuser_allusers_foo_file: Permission denied
+/mnt/hostshare $ touch guest_guestuser_allusers_foo_file
+touch: guest_guestuser_allusers_foo_file: Permission denied
+/mnt/hostshare $ cd user1/
+/mnt/hostshare/user1 $ ls
+host_user1_hello_file    host_user1_private_file
+/mnt/hostshare/user1 $ ls -l
+total 8
+-rw-r--r--    1 1010     1010            20 May 31 20:35 host_user1_hello_file
+-rw-------    1 1010     1010            27 May 31 20:35 host_user1_private_file
+/mnt/hostshare/user1 $ cat host_user1_hello_file 
+Hello user1 (USER1)
+/mnt/hostshare/user1 $ cat host_user1_private_file 
+cat: can't open 'host_user1_private_file': Permission denied
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER" >> host_user1_hello_
+file 
+-sh: can't create host_user1_hello_file: Permission denied
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER" >> host_user1_privat
+e_file 
+-sh: can't create host_user1_private_file: Permission denied
+/mnt/hostshare/user1 $ touch guest_guestuser_user1_foo_file
+touch: guest_guestuser_user1_foo_file: Permission denied
+/mnt/hostshare/user1 $ echo "Hello from GUEST as GUESTUSER" >> guest_guestuser_u
+ser1_foo_file
+-sh: can't create guest_guestuser_user1_foo_file: Permission denied
+/mnt/hostshare/user1 $ id
+uid=107(guest) gid=107(guest) groups=107(guest)
+/mnt/hostshare/user1 $ exit
+/mnt/hostshare/user1 # id
+uid=0(root) gid=0(root) groups=0(root)
+/mnt/hostshare/user1 # echo "Hello from GUEST as ROOT" >> guest_root_user1_foo_f
+ile
+-sh: can't create guest_root_user1_foo_file: Permission denied
+/mnt/hostshare/user1 # exit
+Connection to localhost closed.
+root@3cd9d6f743c5:/# id
+uid=0(root) gid=0(root) groups=0(root)
+root@3cd9d6f743c5:/# ls /opt/
+virt
+root@3cd9d6f743c5:/# ls /opt/virt/
+9p_image.iso  mgmtVE_setup.sh  qemuboot-iso.sh
+root@3cd9d6f743c5:/# 
+
+
+
+
+
+
