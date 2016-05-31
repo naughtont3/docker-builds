@@ -34,6 +34,7 @@ COPY qemuboot-iso.sh /opt/virt/qemuboot-iso.sh
 # NOTE: If change '/opt/virt/' path, update qemuboot script!
 COPY 9p_image.iso    /opt/virt/9p_image.iso
 
+COPY scripts/mgmtVE_setup.sh /opt/virt/mgmtVE_setup.sh
 
 # Get certs so HTTPS requests (e.g., git clone's) work.
 RUN apt-get -y update \
