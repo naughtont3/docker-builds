@@ -9,8 +9,6 @@ Repository
 
 Clone this repository:
 
-    ```
-     git clone https://github.com/naughtont3/docker-builds.git
-    ```
+    git clone https://github.com/naughtont3/docker-builds.git
 
 
