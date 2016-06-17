@@ -94,6 +94,8 @@ Misc. Notes
 - Kernel Source/Headers - kernel headers/source should be installed manually 
   at runtime, or passed via bind-mounts from the host.
   For example, to bind-mount kernel headers/source from host into a container:
+  (*NOTE* To ```insmod``` a module within container, you must pass
+  ```privileged``` when starting container.)
 
   ```
     docker run -ti \
@@ -112,3 +114,22 @@ Misc. Notes
         /bin/sleep infinity 
   ```
 
+  Here is TJN's example used to have a shared scratch (e.g., source code)
+  between host/guest, share host kernel source/modules, and startup using
+  a "system container" model.  The guest can ```insmod``` modules because
+  we pass the ```--privileged``` Docker option.
+
+
+   ```
+     # Start "system container"
+    docker run -d -P --name hobbes_bb \
+            --privileged \
+            -v /home/3t4/docker/docker_share:/data \
+            -v /usr/src:/usr/src \
+            -v /lib/modules:/lib/modules \
+            naughtont3/hobbes-nvl-bb  \
+            /bin/sleep infinity
+
+     # Connect to "system container"
+    docker exec -ti hobbes_bb  bash
+   ```
