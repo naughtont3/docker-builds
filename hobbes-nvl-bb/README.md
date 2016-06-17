@@ -102,3 +102,13 @@ Misc. Notes
         naughtont3/hobbes-nvl-bb /bin/bash
   ```
 
+  Alternate version that starts using a  "system container" model:
+
+  ```
+    docker run -d -P --name hobbes_bb \
+        -v /usr/src:/usr/src \
+        -v /lib/modules:/lib/modules \
+        naughtont3/hobbes-nvl-bb  \
+        /bin/sleep infinity 
+  ```
+
