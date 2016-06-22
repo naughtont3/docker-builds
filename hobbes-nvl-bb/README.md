@@ -80,6 +80,33 @@ Useful Hobbes Commands
   container:# qemu-system-x86_64 -cdrom ./image.iso -m 2048 -smp 4 -serial stdio
   ```
 
+
+Additional Packages for Trilinos/DTK 
+------------------------------------
+- Note, often when doing testing for the Hobbes demo we will build
+  Trilinos/DTK.  The following may need to be installed manually
+  for Trilinos/DTK builds:
+
+  Install Boost, BLAS and LAPACK in guest/VE:
+
+      ```
+        apt-get install \
+            libboost-all-dev  \
+            libblas3 libblas-dev \
+            liblapack3 liblapack-dev
+      ```
+
+- Build/Install OpenMPI from source in guest/VE (see /data/src/ompi/build-ompi.sh)
+
+      ```
+        cd /data/src/ompi/
+        tar -jxf openmpi-<VER>.tar.bz2
+        cd openmpi-<VER>/
+        ln -s ../build-ompi.sh
+        ./build-ompi.sh
+      ```
+
+
 Misc. Notes
 -----------
 - Show version of tools using ```show-dev-tools.sh```
