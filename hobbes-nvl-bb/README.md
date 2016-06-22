@@ -121,7 +121,7 @@ Misc. Notes
 
 
    ```
-     # Start "system container"
+     # Start "system container" (fully privledged!)
     docker run -d -P --name hobbes_bb \
             --privileged \
             -v /home/3t4/docker/docker_share:/data \
@@ -133,3 +133,21 @@ Misc. Notes
      # Connect to "system container"
     docker exec -ti hobbes_bb  bash
    ```
+
+- Running a Hobbes demo container with access to the '/dev/xpmem' device
+  (assumed to be loaded by host, otherwise need more privledges to insmod in
+  container).
+
+   ```
+     # Start "system container" (with access to /dev/xpmem device)
+    docker run -d -P --name hobbes_bb \
+            --device /dev/xpmem \
+            -v /home/3t4/docker/docker_share:/data \
+            naughtont3/hobbes-nvl-bb  \
+            /bin/sleep infinity
+
+     # Connect to "system container" (with access to /dev/xpmem device)
+    docker exec -ti hobbes_bb  bash
+   ```
+
+    
