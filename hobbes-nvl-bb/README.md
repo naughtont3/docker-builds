@@ -106,6 +106,42 @@ Additional Packages for Trilinos/DTK
         ./build-ompi.sh
       ```
 
+- (MOVE ELSEHWERE) NOTE ON RUNNING Hobbes demo_v1.0 in container environment
+  on sal9k-node40
+
+      ```
+          # (REQUIRED ONCE) Start the "system" container
+        docker run -d -P \
+            --name hobbes_bb \
+            --device /dev/xpmem \
+            -v /home/3t4/docker/docker_share:/data \
+            naughtont3/hobbes-nvl-bb \
+            /bin/sleep infinity"
+      ```
+
+      ```
+          # Run the 'driver' (e.g., in Host)
+          #  Note: First chdir is to share dir between host/guest
+        cd /home/3t4/docker/docker_share/
+        cd src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
+        sudo ./DataTransferKitC_API_driver.exe 
+      ```
+
+      ```
+          # [NON-INTERACTIVE] Run the 'appA' (e.g., in Container)
+          #  Note: Just run 'appA' in container context.
+        docker exec hobbes_bb \
+            /data/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/DataTransferKitC_API_appA.exe
+      ```
+
+      ```
+          # [INTERACTIVE] Run the 'appB' (e.g., in Container) 
+          #  Note: First start shell (bash) and then run 'appB'.
+        docker exec -ti hobbes_bb bash
+        cd /data/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
+        ./DataTransferKitC_API_appB.exe
+      ```
+
 
 Misc. Notes
 -----------
