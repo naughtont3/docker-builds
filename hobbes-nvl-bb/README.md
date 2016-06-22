@@ -106,6 +106,8 @@ Additional Packages for Trilinos/DTK
         ./build-ompi.sh
     ```
 
+Running Hobbes Demo-v1.0
+------------------------
 - (MOVE ELSEHWERE) NOTE ON RUNNING Hobbes demo_v1.0 in container environment
   on sal9k-node40
 
