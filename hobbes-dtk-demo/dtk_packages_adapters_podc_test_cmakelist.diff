@@ -1,0 +1,49 @@
+#
+# TJN: (23jun2016) Patch file for Hobbes forked DTK git repo,
+#      changes paths in CMakeLists.txt to what is used in our
+#      Docker based build/config.
+#
+
+diff --git a/packages/Adapters/POD_C/test/CMakeLists.txt b/packages/Adapters/POD_C/test/CMakeLists.txt
+index 1fa28ae..2acdc28 100644
+--- a/packages/Adapters/POD_C/test/CMakeLists.txt
++++ b/packages/Adapters/POD_C/test/CMakeLists.txt
+@@ -1,7 +1,7 @@
+-INCLUDE_DIRECTORIES(/home/gvh/src/git/leviathan/libhobbes
+-                    /home/gvh/src/git/petlib/
+-                    /home/gvh/src/git/xpmem/include
+-                    /home/gvh/src/git/leviathan/whitedb-0.7.3/Db)
++INCLUDE_DIRECTORIES(/hobbes/src/leviathan/libhobbes
++                    /hobbes/src/petlib/
++                    /hobbes/src/xpmem/include
++                    /hobbes/src/leviathan/whitedb-0.7.3/Db)
+ 
+ FIND_LIBRARY(M_LIB m)
+ #FIND_LIBRARY(HOBBES_LIB hobbes)
+@@ -51,7 +51,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+     appA
+     SOURCES appA.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+-    IMPORTEDLIBS /home/gvh/src/git/leviathan/libhobbes/libhobbes.a
++    IMPORTEDLIBS /hobbes/src/leviathan/libhobbes/libhobbes.a
+     COMM serial mpi
+     STANDARD_PASS_OUTPUT
+     )
+@@ -59,7 +59,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+     appB
+     SOURCES appB.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+-    IMPORTEDLIBS /home/gvh/src/git/leviathan/libhobbes/libhobbes.a
++    IMPORTEDLIBS /hobbes/src/leviathan/libhobbes/libhobbes.a
+     COMM serial mpi
+     STANDARD_PASS_OUTPUT
+     )
+@@ -67,7 +67,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+ TRIBITS_ADD_EXECUTABLE_AND_TEST(
+     driver
+     SOURCES driver.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+-    IMPORTEDLIBS /home/gvh/src/git/leviathan/libhobbes/libhobbes.a
++    IMPORTEDLIBS /hobbes/src/leviathan/libhobbes/libhobbes.a
+     COMM serial mpi
+     STANDARD_PASS_OUTPUT
+     )

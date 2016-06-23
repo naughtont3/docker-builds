@@ -7,6 +7,17 @@ A "Hobbes DTK Container Demo" based on Ubuntu,
 with a Hobbes "process-based" DTK Demo build. 
 (Note, does *not* include BusyBox Guest VM.)
 
+Note, since we are using private Github repositories,
+you should generate a "Personal access token" at Github
+and pass it via a ```--build-arg``` to the ```GITHUB_TOKEN```
+that is used in the Dockerfile.
+
+  - *NOTE* The 'dockerhub-build-push.sh' script supports
+     saving the generated token as a file (e.g., mytoken)
+     and then it will be passed as Docker --build-arg.
+
+  - See 'Personal Access Tokens' details below.
+
 See also Docker Hub repo
 https://hub.docker.com/r/naughtont3/hobbes-dtk-demo/
 
@@ -51,39 +62,51 @@ Useful Docker Commands
     docker push naughtont3/hobbes-dtk-demo 
     ```
 
-Useful Hobbes Commands
+Personal Access Tokens
 ----------------------
 
+When using private Git repositories you need some way to pass authentication
+inforation, which is used in the Dockerfiles for 'git clone' commands. 
+To avoid embedding username/passwords, Github supports the generation of
+"Personal access tokens" that can be passed to Git for authentication.
 
-Additional Packages for Trilinos/DTK 
-------------------------------------
-- Note, often when doing testing for the Hobbes demo we will build
-  Trilinos/DTK.  The following may need to be installed manually
-  for Trilinos/DTK builds:
+  https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 
-  Install Boost, BLAS and LAPACK in guest/VE:
+In the current Dockerfile the ```GITHUB_TOKEN``` argument is used to clone
+the private repositories.
 
-    ```
-        apt-get install \
-            libboost-all-dev  \
-            libblas3 libblas-dev \
-            liblapack3 liblapack-dev
-    ```
+- Step-1) Generate the Personal Access Token at Github
+    - https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 
-- Build/Install OpenMPI from source in guest/VE (see /data/src/ompi/build-ompi.sh)
+- Step-2) Save the token as a file (one line only), e.g., "mytoken"
 
     ```
-        cd /data/src/ompi/
-        tar -jxf openmpi-<VER>.tar.bz2
-        cd openmpi-<VER>/
-        ln -s ../build-ompi.sh
-        ./build-ompi.sh
+    vi mytoken
+
+    wc -l mytoken 
+    1 mytoken
     ```
+
+- Step-3) Run Docker build, passing the  ```--build-arg``` (reading token from file):
+
+    ```
+    docker build --build-arg=GITHUB_TOKEN=$(cat mytoken) -t="naughtont3/hobbes-dtk-demo" .
+    ```
+
+- ***NOTE*** DO NOT SAVE YOUR TOKEN TO REPOSITORY OR GIVE TO OTHER USERS!
+
+- Note: If using the  'dockerhub-build-push.sh', it recognized a file named
+    ```mytoken``` in current working directory and will pass that seamlessly.
+
+
 
 Running Hobbes Demo-v1.0
 ------------------------
 - (MOVE ELSEHWERE) NOTE ON RUNNING Hobbes demo_v1.0 in container environment
-  on sal9k-node40
+  on sal9k-node40.  
+
+-  ***NOTE*** THIS IS OLD VERSION USING DIFFERENT PATHS, NEEDS TO BE UPDATED
+     TO PATHS USED HERE, i.e.,g /hobbes/src/ ...
 
     ```
           # (REQUIRED ONCE) Start the "system" container
