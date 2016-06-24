@@ -1,8 +1,6 @@
 hobbes-dtk-demo
 ---------------
 
-***NOTE*** This is ``in progress'' / incomplete.
-
 A "Hobbes DTK Container Demo" based on Ubuntu,
 with a Hobbes "process-based" DTK Demo build. 
 (Note, does *not* include BusyBox Guest VM.)
@@ -271,4 +269,8 @@ Kernel Modules in Containers
     docker exec -ti hobbes_demo  bash
    ```
 
+NOTES
+-----
+- (24jun2016) Initial version, tested on SAL9000 node at ORNL with
+  Docker-v1.11 and Ubuntu-14.04
 
