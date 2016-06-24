@@ -79,6 +79,7 @@ RUN apt-get -y update \
         libibverbs1 \
         liblapack3 \
         liblapack-dev \
+        patch \
         wget \
         zlib1g-dev \
     && apt-get clean
