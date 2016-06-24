@@ -61,6 +61,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ADD dtk_packages_adapters_podc_test_cmakelist.diff  \
     ${PREFIX}/config/dtk_packages_adapters_podc_test_cmakelist.diff
 
+# TJN: (24jun2016) Patch for ORNL-Hobbes_demo_v1.0 build.sh paths
+ADD hobbes_demov1.0_buildsh.diff \
+    ${PREFIX}/config/hobbes_demov1.0_buildsh.diff
 
 
 # Get certs so HTTPS requests (e.g., git clone) works
@@ -129,6 +132,10 @@ RUN cd ${PREFIX}/src/ && \
     git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/ORNL/hobbes_demo.git
     #git clone https://github.com/ORNL/hobbes_demo.git
 
+# 1.1) Patch Hobbes Demo demo_v1.0 git to have our expected paths
+RUN cd ${PREFIX}/src/hobbes_demo && \
+    patch -p 1 < ${PREFIX}/config/hobbes_demov1.0_buildsh.diff
+
 # 2) Checkout DTKData git into "${PREFIX}/src" 
 #    (which will result in: /hobbes/src/DTKData)
 #    URL: https://github.com/ORNL-CEES/DTKData.git
@@ -186,13 +193,39 @@ RUN cd ${PREFIX}/src/ && \
 #### Now need kick off the configure(s) and build(s)!
 #### Note, we'll build at end to ensure we build all in proper order.
 
+# Build petlib
+RUN cd ${PREFIX}/src/petlib && \
+    make
 
- #
- # TODO: FINISHME BUILD OF xpmem  (do we need to build this if host does insmod?)
- # TODO: FINISHME BUILD OF petlib
- # TODO: FINISHME BUILD OF whitedb
- # TODO: FINISHME BUILD OF libhobbes
- # TODO: FINISHME BUILD OF DTK/Trilinos
- # TODO: FINISHME BUILD OF Hobbes demo_v1.0
- #
+# Build xpmem 
+# (note: we will have host do 'insmod xpmem.ko')
+RUN cd ${PREFIX}/src/xpmem && \
+    make -C lib && \
+    make -C mod 
+
+# Build whitedb and libhobbes
+RUN cd ${PREFIX}/src/leviathan && \
+    cd whitedb-0.7.3/ && \
+    ./autogen.sh && ./configure && make && \
+    cd ${PREFIX}/src/leviathan/libhobbes/ && \
+    make 
+
+# Build just the Hobbes demo_v0.1 code (mainly for testing/debug)
+RUN cd ${PREFIX}/src/hobbes_demo/demo_v0.1 && \
+    ./autogen.sh && \
+    ./configure && make && \
+    ./configure \
+        --with-petlib=../petlib \
+        --with-xpmem=../xpmem \
+        --with-leviathan=../leviathan && \
+    make
+
+###
+# XXX: TJN - Not sure this is "best" way to build DTK/Hobbes-demos
+#      but we can change it later as appropriate.
+###
+# Build DTK/Trilinos and Hobbes demo_v1.0
+RUN cd ${PREFIX}/src/hobbes_demo/demo_v1.0/config_demo_1.0/ && \
+    ./build.sh  && \
+    echo "NOTE: Hobbes-demo-v1.0 under ${PREFIX}/src/hobbes_demo/demo_v1.0/"
 
