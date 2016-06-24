@@ -4,8 +4,8 @@ username=naughtont3
 imagename=hobbes-dtk-demo
 
 # Skip final "docker push" 1=skip, 0=push
-skip_push=0
-#skip_push=1
+#skip_push=0
+skip_push=1
 
 # Github token file
 # Note: We read it from a file to avoid hardcoding
