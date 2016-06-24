@@ -70,13 +70,13 @@ inforation, which is used in the Dockerfiles for 'git clone' commands.
 To avoid embedding username/passwords, Github supports the generation of
 "Personal access tokens" that can be passed to Git for authentication.
 
-  https://help.github.com/articles/creating-an-access-token-for-command-line-use/
+  https://help.github.com/articles/creating-an-access-token-for-command-line-use
 
 In the current Dockerfile the ```GITHUB_TOKEN``` argument is used to clone
 the private repositories.
 
 - Step-1) Generate the Personal Access Token at Github
-    - https://help.github.com/articles/creating-an-access-token-for-command-line-use/
+    - https://help.github.com/articles/creating-an-access-token-for-command-line-use
 
 - Step-2) Save the token as a file (one line only), e.g., "mytoken"
 
@@ -102,11 +102,21 @@ the private repositories.
 
 Running Hobbes Demo-v1.0
 ------------------------
-- (MOVE ELSEHWERE) NOTE ON RUNNING Hobbes demo_v1.0 in container environment
-  on sal9k-node40.  
+- The following assumes you are running all three pieces of demo_v1.0
+  within containers, i.e., driver, appA, and appB within Docker containers.
+  They can be seperate containers.  
 
--  ***NOTE*** THIS IS OLD VERSION USING DIFFERENT PATHS, NEEDS TO BE UPDATED
-     TO PATHS USED HERE, i.e.,g /hobbes/src/ ...
+- **NOTE*** Container Usage Model: 
+  - In the examples we employ a "system container" usage model, where a
+    containers is started in the background and is treated like a
+    light-weight VM.  An "application container" usage model, where each
+    application executable is started in its own container, is also valid
+    and should work just fine too.
+
+- Step-0: Load the 'xpmem' kernel module in the host (See also: "Host XPMEM")
+
+- Step-1: Start the "system" container for Hobbes Demo_v1.0 instances
+   ***NOTE***: We pass the XPMEM device file via ```--device /dev/xpmem```.
 
     ```
           # (REQUIRED ONCE) Start the "system" container
@@ -118,60 +128,118 @@ Running Hobbes Demo-v1.0
             /bin/sleep infinity"
     ```
 
+- Step-2: Start the Hobbes Demo_v1.0 'driver' instance 
+
     ```
-          # Run the 'driver' (e.g., in Host)
-          #  Note: First chdir is to share dir between host/guest
-        cd /home/3t4/docker/docker_share/
-        cd src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
-        sudo ./DataTransferKitC_API_driver.exe 
+        # [INTERACTIVE] Run the 'driver' (e.g., in Container) 
+        #  Note: First start shell (bash) and then run 'driver'.
+     docker exec -ti hobbes_demo bash
+
+     cd /hobbes/src/hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
+
+     ./DataTransferKitC_API_driver.exe
+    ```
+
+- Step-3: Start the Hobbes Demo_v1.0 'appA' instance 
+
+    ```
+       # [NON-INTERACTIVE] Run the 'appA' (e.g., in Container)
+       #  Note: Just run 'appA' in container context.
+     docker exec hobbes_demo \
+           /hobbes/src/hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/DataTransferKitC_API_appA.exe
+    ```
+
+- Step-4: Start the Hobbes Demo_v1.0 'appB' instance 
+
+    ```
+        # [INTERACTIVE] Run the 'appB' (e.g., in Container) 
+        #  Note: First start shell (bash) and then run 'appB'.
+     docker exec -ti hobbes_demo bash
+
+     cd /hobbes/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
+
+     ./DataTransferKitC_API_appB.exe
+    ```
+
+
+Host XPMEM
+----------
+- We generally will load the XPMEM kernel module in the host, as there is 
+  no reason to build and install it from a container.   
+
+- To build and load in the host, you will run the following.  
+  
+    ```
+      # Install kernel headers if not already installed
+    sudo apt-get install linux-headers-$(uname -r)
+    ls -l /usr/src/linux-headers-$(uname -r)
     ```
 
     ```
-          # [NON-INTERACTIVE] Run the 'appA' (e.g., in Container)
-          #  Note: Just run 'appA' in container context.
-        docker exec hobbes_demo \
-            /data/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/DataTransferKitC_API_appA.exe
+      # Download and build XPMEM kernel module
+    git clone http://github.com/ORNL/xpmem.git
+    cd xpmem/mod/
+    make
     ```
 
     ```
-          # [INTERACTIVE] Run the 'appB' (e.g., in Container) 
-          #  Note: First start shell (bash) and then run 'appB'.
-        docker exec -ti hobbes_demo bash
-        cd /data/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/DataTransferKit/packages/Adapters/POD_C/test/
-        ./DataTransferKitC_API_appB.exe
+      # Load xpmem kernel module (from xpmem/mod/ directory)
+    sudo insmod ./xpmem.ko
     ```
 
+- If you do want to build/load the XPMEM kernel module from a container,
+  you need to follow the steps in 'Kernel Modules in Containers'.
+  ***NOTE***: To ```insmod``` a module within container, you must pass the
+  ```--privileged``` option when starting the Docker container.
 
-Misc. Notes
------------
-- Kernel Source/Headers - kernel headers/source should be installed manually
-  at runtime, or passed via bind-mounts from the host.
-  For example, to bind-mount kernel headers/source from host into a container:
-  (*NOTE* To ```insmod``` a module within container, you must pass
-  ```--privileged``` when starting container.)
 
-  ```
+
+Kernel Modules in Containers
+----------------------------
+- Kernel Source/Headers - kernel headers/source should be 
+   installed manually at runtime in container, or (preferrably) 
+   passed via bind-mounts from the host. 
+
+  ***NOTE***: To ```insmod``` a module within container, you must pass 
+    the ```--privileged``` option when starting the Docker container.
+    Otherwise, if only building the kernel module in container, you can 
+    avoid passing ```privileged``` and only pass bind-mounts.
+  
+    ```
+      # Install kernel headers if not already installed
+    sudo apt-get install linux-headers-$(uname -r)
+    ls -l /usr/src/linux-headers-$(uname -r)
+    ```
+
+   For example, to bind-mount kernel headers/source from host into container,
+   (note: we use a "system container" model here):
+  
+    ```
+     # Start "system container" (fully privledged!) with Kernel src/modules
     docker run -ti \
-        -v /usr/src:/usr/src \
-        -v /lib/modules:/lib/modules
-        naughtont3/hobbes-dtk-demo /bin/bash
-  ```
-
-  Alternate version that starts using a  "system container" model:
-
-  ```
-    docker run -d -P --name hobbes_demo \
+        --privileged \
         -v /usr/src:/usr/src \
         -v /lib/modules:/lib/modules \
-        naughtont3/hobbes-dtk-demo  \
-        /bin/sleep infinity 
-  ```
+        --name hobbes_demo \
+        naughtont3/hobbes-dtk-demo \
+        /bin/sleep infinity
+    ```
 
-  Here is TJN's example used to have a shared scratch (e.g., source code)
-  between host/guest, share host kernel source/modules, and startup using
-  a "system container" model.  The guest can ```insmod``` modules because
-  we pass the ```--privileged``` Docker option.
+    ```
+      # Connect to container and follow normal steps for kernel module build
+      # and use ```insmod```', etc. as expected.  
+    docker exec -ti  hobbes_demo bash
+    ```
 
+- Note: The kernel module will persist in host after container exits,
+  so make sure to cleanup/unload any loaded kernel modules.
+
+- Another example: Here is an example I use to have a shared scratch 
+  (e.g., source code) between host/guest, share host kernel source/modules, 
+  and startup using a "system container" model.  The guest can ```insmod``` 
+  modules because we pass the ```--privileged``` Docker option.
+  However, since the kernel module is accessible in host or container via
+  shared scratch directory, you can also easily load it in the host.
 
    ```
      # Start "system container" (fully privledged!)
@@ -187,9 +255,9 @@ Misc. Notes
     docker exec -ti hobbes_demo  bash
    ```
 
-- Running a Hobbes demo container with access to the '/dev/xpmem' device
-  (assumed to be loaded by host, otherwise need more privledges to insmod in
-  container).
+- Another example: Running a Hobbes demo container with access to 
+  the '/dev/xpmem' device (xpmem assumed to be loaded by host, otherwise 
+  need more privledges to 'insmod' in container).
 
    ```
      # Start "system container" (with access to /dev/xpmem device)
