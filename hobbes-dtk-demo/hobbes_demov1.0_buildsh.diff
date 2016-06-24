@@ -1,0 +1,33 @@
+diff --git a/demo_v1.0/config_demo_1.0/build.sh b/demo_v1.0/config_demo_1.0/build.sh
+index 08ea7be..e8a0ef8 100755
+--- a/demo_v1.0/config_demo_1.0/build.sh
++++ b/demo_v1.0/config_demo_1.0/build.sh
+@@ -1,12 +1,12 @@
+ #!/bin/bash
+ 
+-PATH_TO_INSTALL_DIR=$HOME/dtk_install
+-PATH_TO_MPI_INSTALL=$HOME/ompi_install
++PATH_TO_INSTALL_DIR=/hobbes/local/dtk_install
++PATH_TO_MPI_INSTALL=/hobbes/local/ompi_install
+ #PATH_TO_BLAS_LIB=$HOME/src/BLAS-3.6.0
+ #PATH_TO_LAPACK_LIB=$HOME/src/lapack-3.6.0
+-PATH_TO_TRILINOS=$HOME/src/git/Trilinos
+-PATH_TO_LIBMESH=$HOME/src/git/libmesh
+-PATH_TO_LIBHOBBES=$HOME/src/git/leviathan/libhobbes
++PATH_TO_TRILINOS=/hobbes/src/Trilinos
++#PATH_TO_LIBMESH=/data/src/libmesh
++PATH_TO_LIBHOBBES=/hobbes/src/leviathan/libhobbes
+ 
+ #hobbes_LIBRARY_DIRS:FILEPATH="/home/gvh/src/git/leviathan/libhobbes"
+ #hobbes_INCLUDE_DIRS:FILEPATH="/home/gvh/src/git/leviathan/libhobbes"
+@@ -28,8 +28,8 @@ cmake \
+     -D MPI_BASE_DIR:PATH=$PATH_TO_MPI_INSTALL \
+     -D TPL_BLAS_LIBRARIES:STRING="${PATH_TO_BLAS_LIB}" \
+     -D TPL_LAPACK_LIBRARIES:STRING="${PATH_TO_LAPACK_LIB}" \
+-    -D hobbes_LIBRARY_DIRS:FILEPATH="/home/gvh/src/git/leviathan/libhobbes" \
+-    -D hobbes_INCLUDE_DIRS:FILEPATH="/home/gvh/src/git/leviathan/libhobbes" \
++    -D hobbes_LIBRARY_DIRS:FILEPATH="/hobbes/src/leviathan/libhobbes" \
++    -D hobbes_INCLUDE_DIRS:FILEPATH="/hobbes/src/leviathan/libhobbes" \
+     -D TPL_ENABLE_hobbes:BOOL=ON \
+     -D TPL_ENABLE_MOAB=OFF \
+     -D Trilinos_ENABLE_CXX11:BOOL=ON \
