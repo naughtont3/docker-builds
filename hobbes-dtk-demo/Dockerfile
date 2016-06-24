@@ -197,11 +197,21 @@ RUN cd ${PREFIX}/src/ && \
 RUN cd ${PREFIX}/src/petlib && \
     make
 
-# Build xpmem 
-# (note: we will have host do 'insmod xpmem.ko')
-RUN cd ${PREFIX}/src/xpmem && \
-    make -C lib && \
-    make -C mod 
+# Build xpmem  (library)
+RUN cd ${PREFIX}/src/xpmem/lib && \
+    make && \
+
+# Build xpmem  (module)
+# (note: we will keep module seperate and likely load in host 
+#  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
+#  the container, we'll attempt to build the kernel module.)
+RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
+        if [ -d "/lib/modules/$(uname -r)" ] ; then \
+          echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
+          cd ${PREFIX}/src/xpmem/mod ; \
+          make ; \
+        fi ; \
+    fi 
 
 # Build whitedb and libhobbes
 RUN cd ${PREFIX}/src/leviathan && \
@@ -213,11 +223,10 @@ RUN cd ${PREFIX}/src/leviathan && \
 # Build just the Hobbes demo_v0.1 code (mainly for testing/debug)
 RUN cd ${PREFIX}/src/hobbes_demo/demo_v0.1 && \
     ./autogen.sh && \
-    ./configure && make && \
     ./configure \
-        --with-petlib=../petlib \
-        --with-xpmem=../xpmem \
-        --with-leviathan=../leviathan && \
+        --with-petlib=../../petlib \
+        --with-xpmem=../../xpmem \
+        --with-leviathan=../../leviathan && \
     make
 
 ###
