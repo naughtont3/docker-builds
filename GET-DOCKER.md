@@ -11,6 +11,7 @@ Install Docker: Linux
 ---------------------
 
 Steps taken from https://docs.docker.com/linux/step_one/
+(See also: https://docs.docker.com/engine/installation/)
 
  - *NOTE* Ensure Docker is not installed already (and if so check version)
 
