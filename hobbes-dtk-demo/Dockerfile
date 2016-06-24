@@ -236,5 +236,6 @@ RUN cd ${PREFIX}/src/hobbes_demo/demo_v0.1 && \
 # Build DTK/Trilinos and Hobbes demo_v1.0
 RUN cd ${PREFIX}/src/hobbes_demo/demo_v1.0/config_demo_1.0/ && \
     ./build.sh  && \
+    make && \
     echo "NOTE: Hobbes-demo-v1.0 under ${PREFIX}/src/hobbes_demo/demo_v1.0/"
 
