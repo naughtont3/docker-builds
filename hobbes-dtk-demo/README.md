@@ -19,6 +19,15 @@ that is used in the Dockerfile.
 See also Docker Hub repo
 https://hub.docker.com/r/naughtont3/hobbes-dtk-demo/
 
+Getting Docker
+--------------
+- Most distributions include Docker, but the version may be old.  For
+  instructions on installing a recent version of Docker on Linux, 
+  see: https://docs.docker.com/linux/step_one/
+
+- Note: For convience, there is also a note with most of the steps for
+  gettting Docker on Linux in this repository: [GET-DOCKER.md](../GET-DOCKER.md)
+
 
 (Generic) Useful Docker Commands
 --------------------------------
