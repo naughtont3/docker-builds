@@ -28,7 +28,7 @@ Getting Docker
 
 - Note: For convience, there is also a note with most of the steps for
   gettting Docker on Linux in this repository: [GET-DOCKER.md](../GET-DOCKER.md)
-
+   
 
 (Generic) Useful Docker Commands
 --------------------------------
@@ -69,6 +69,33 @@ Getting Docker
     docker build -t="naughtont3/hobbes-dtk-demo" .
     docker push naughtont3/hobbes-dtk-demo 
     ```
+
+
+Building 'hobbes-dtk-demo' Docker Image
+---------------------------------------
+- Download the 'docker-build' repo with docker build files and support material
+
+  ```
+    git clone https://github.com/naughtont3/docker-builds.git
+  ```
+
+- Change to the 'hobbes-dtk-demo' area 
+
+  ```
+    cd docker-builds/hobbes-dtk-demo/
+  ```
+
+- Run ```docker build``` (passing a Github token via 'mytoken' file)
+  (NOTE: 'Personal Access Tokens' below for more details.)
+
+  ```
+    docker build \
+        --build-arg=GITHUB_TOKEN=$(cat mytoken) \
+       -t="naughtont3/hobbes-dtk-demo" .
+  ```
+
+- See also the Docker build/push helper script [dockerhub-build-push.sh](dockerhub-build-push.sh)
+
 
 Personal Access Tokens
 ----------------------
