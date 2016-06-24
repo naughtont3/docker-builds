@@ -20,8 +20,8 @@ See also Docker Hub repo
 https://hub.docker.com/r/naughtont3/hobbes-dtk-demo/
 
 
-Useful Docker Commands
-----------------------
+(Generic) Useful Docker Commands
+--------------------------------
 - Run image (start container) in ''daemon'' mode:
 
   ```
