@@ -10,7 +10,7 @@ on the Linux page (see also: Mac OSX and Windows options).
 Install Docker: Linux 
 ---------------------
 
-Steps taken from https://docs.docker.com/linux/step_one/
+Steps taken from https://docs.docker.com/v1.11/linux/step_one
 (See also: https://docs.docker.com/engine/installation/)
 
  - *NOTE* Ensure Docker is not installed already (and if so check version)
