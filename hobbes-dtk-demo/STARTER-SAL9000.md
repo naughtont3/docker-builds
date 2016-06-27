@@ -91,7 +91,7 @@ Run Hobbes DTK Demo-v1.0 Container
      # Term-1 (Driver) 
     sal9k:$ docker exec -ti hobbes_demo bash 
     root# export PS1="DRIVER# "
-    DRIVER# cd /hobbes/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/
+    DRIVER# cd /hobbes/src/hobbes_demo/demo_v1.0/config_demo_1.0/
     DRIVER# cd DataTransferKit/packages/Adapters/POD_C/test/
     DRIVER# ./DataTransferKitC_API_driver.exe
     ```
@@ -100,7 +100,7 @@ Run Hobbes DTK Demo-v1.0 Container
      # Term-2 (appA) 
     sal9k:$ docker exec -ti hobbes_demo bash 
     root# export PS1="APP-A# "
-    APP-A# cd /hobbes/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/
+    APP-A# cd /hobbes/src/hobbes_demo/demo_v1.0/config_demo_1.0/
     APP-A# cd DataTransferKit/packages/Adapters/POD_C/test/
     APP-A# ./DataTransferKitC_API_appA.exe
     ```
@@ -109,7 +109,7 @@ Run Hobbes DTK Demo-v1.0 Container
      # Term-3 (appB) 
     sal9k:$ docker exec -ti hobbes_demo bash 
     root# export PS1="APP-B# "
-    APP-B# cd /hobbes/src/ornl-hobbes_demo/demo_v1.0/config_demo_1.0/
+    APP-B# cd /hobbes/src/hobbes_demo/demo_v1.0/config_demo_1.0/
     APP-B# cd DataTransferKit/packages/Adapters/POD_C/test/
     APP-B# ./DataTransferKitC_API_appB.exe
     ```
