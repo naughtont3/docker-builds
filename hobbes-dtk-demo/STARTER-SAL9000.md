@@ -53,7 +53,8 @@ Build Hobbes XPMEM Kernel Module
 --------------------------------
 
 1. Build Host XPMEM
-    - See: https://github.com/naughtont3/docker-builds/tree/master/hobbes-dtk-demo#host-xpmem
+    - See: [README.md#host-xpmem](./README.md#host-xpmem)
+    - URL:https://github.com/naughtont3/docker-builds/tree/master/hobbes-dtk-demo/README.md#host-xpmem
 
 
 
