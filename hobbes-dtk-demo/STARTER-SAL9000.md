@@ -62,7 +62,7 @@ Run Hobbes DTK Demo-v1.0 Container
 ----------------------------------
 
 1. Run Docker command to start 'naughtont3/hobbes-dtk-demo' container
-   NOTE: The first time, it'll have to download the image from Dockerhub.
+   NOTE: The first time, it will have to download the image from Dockerhub.
 
     ```
      # (Useful/Optional) Create shared host/guest scratch dir
@@ -113,4 +113,37 @@ Run Hobbes DTK Demo-v1.0 Container
     APP-B# cd DataTransferKit/packages/Adapters/POD_C/test/
     APP-B# ./DataTransferKitC_API_appB.exe
     ```
+
+Docker Shutdown/Cleanup
+-----------------------
+- Follow the normal shutdown and cleanup for Docker.  For completeness,
+  we show an example here as well.
+
+1. Exit the three shells for Driver, appA, and appB,  which will stop those
+   three containers.
+
+    ```
+    DRIVER# exit
+    ```
+
+    ```
+    APP-A# exit
+    ```
+
+    ```
+    APP-B# exit
+    ```
+
+2. Stop and Delete the primary "system" container running ```sleep infinity```.
+
+    ```
+    docker stop hobbes_demo
+    docker rm -v hobbes_demo
+    ```
+
+    ```
+      # Show ALL docker processes to ensure hobbes_demo bits are gone
+    docker ps -a | grep hobbes_demo
+    ```
+
 
