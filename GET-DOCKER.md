@@ -49,7 +49,7 @@ Steps taken from https://docs.docker.com/v1.11/linux/step_one
      sudo usermod -aG docker 3t4
    ```
 
- - Verify ```docker``` is installed corretly
+ - Verify ```docker``` is installed correctly
 
    ```
      docker run hello-world

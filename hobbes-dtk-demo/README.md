@@ -26,9 +26,20 @@ Getting Docker
   see: https://docs.docker.com/linux/step_one/
   (See also: https://docs.docker.com/engine/installation/)
 
-- Note: For convience, there is also a note with most of the steps for
-  gettting Docker on Linux in this repository: [GET-DOCKER.md](../GET-DOCKER.md)
+- Note: For convenience, there is also a note with most of the steps for
+  getting Docker on Linux in this repository: [GET-DOCKER.md](../GET-DOCKER.md)
    
+
+Hobbes Users/Developer at ORNL
+------------------------------
+The SAL9000 cluster at ORNL is used for Hobbes development and testing.
+Users with access to this machine should start by looking at 
+  - [Hobbes SAL9000 Starter Info. for Hobbes Demo-v1.0 with Docker](./STARTER-SAL9000.md)
+
+NOTE: Other users may also want to start by looking at this file as it is 
+a quick introduction for using the 'hobbes-dtk-demo' container image 
+with Docker.
+
 
 (Generic) Useful Docker Commands
 --------------------------------
@@ -101,7 +112,7 @@ Personal Access Tokens
 ----------------------
 
 When using private Git repositories you need some way to pass authentication
-inforation, which is used in the Dockerfiles for 'git clone' commands. 
+information, which is used in the Dockerfiles for 'git clone' commands. 
 To avoid embedding username/passwords, Github supports the generation of
 "Personal access tokens" that can be passed to Git for authentication.
 
@@ -139,7 +150,7 @@ Running Hobbes Demo-v1.0
 ------------------------
 - The following assumes you are running all three pieces of demo_v1.0
   within containers, i.e., driver, appA, and appB within Docker containers.
-  They can be seperate containers.  
+  They can be separate containers.  
 
 - **NOTE*** Container Usage Model: 
   - In the examples we employ a "system container" usage model, where a
@@ -232,7 +243,7 @@ Host XPMEM
 Kernel Modules in Containers
 ----------------------------
 - Kernel Source/Headers - kernel headers/source should be 
-   installed manually at runtime in container, or (preferrably) 
+   installed manually at runtime in container, or (preferably) 
    passed via bind-mounts from the host. 
 
   ***NOTE***: To ```insmod``` a module within container, you must pass 
@@ -250,7 +261,7 @@ Kernel Modules in Containers
    (note: we use a "system container" model here):
   
     ```
-     # Start "system container" (fully privledged!) with Kernel src/modules
+     # Start "system container" (fully privileged!) with Kernel src/modules
     docker run -ti \
         --privileged \
         -v /usr/src:/usr/src \
@@ -277,7 +288,7 @@ Kernel Modules in Containers
   shared scratch directory, you can also easily load it in the host.
 
    ```
-     # Start "system container" (fully privledged!)
+     # Start "system container" (fully privileged!)
     docker run -d -P --name hobbes_demo \
             --privileged \
             -v /home/3t4/docker/docker_share:/data \
@@ -292,7 +303,7 @@ Kernel Modules in Containers
 
 - Another example: Running a Hobbes demo container with access to 
   the '/dev/xpmem' device (xpmem assumed to be loaded by host, otherwise 
-  need more privledges to 'insmod' in container).
+  need more privileges to 'insmod' in container).
 
    ```
      # Start "system container" (with access to /dev/xpmem device)

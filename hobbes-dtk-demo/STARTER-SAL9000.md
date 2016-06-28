@@ -62,7 +62,7 @@ Run Hobbes DTK Demo-v1.0 Container
 ----------------------------------
 
 1. Run Docker command to start 'naughtont3/hobbes-dtk-demo' container
-   NOTE: The first time, it will have to download the image from Dockerhub.
+   NOTE: The first time, it will have to download the image (~10GB) from Dockerhub.
 
     ```
      # (Useful/Optional) Create shared host/guest scratch dir

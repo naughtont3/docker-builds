@@ -186,7 +186,7 @@ Misc. Notes
 
 
    ```
-     # Start "system container" (fully privledged!)
+     # Start "system container" (fully privileged!)
     docker run -d -P --name hobbes_bb \
             --privileged \
             -v /home/3t4/docker/docker_share:/data \
@@ -200,7 +200,7 @@ Misc. Notes
    ```
 
 - Running a Hobbes demo container with access to the '/dev/xpmem' device
-  (assumed to be loaded by host, otherwise need more privledges to insmod in
+  (assumed to be loaded by host, otherwise need more privileges to insmod in
   container).
 
    ```
