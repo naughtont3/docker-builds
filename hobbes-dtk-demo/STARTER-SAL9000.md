@@ -6,9 +6,9 @@ SAL9000: Install/Setup Docker
 -----------------------------
 
 1. Get Docker on the node if not already there (e.g., docker-v1.11)
-   References (choose one):
     - [Getting Docker](../GET-DOCKER.md)
-    - https://github.com/naughtont3/docker-builds/blob/master/GET-DOCKER.md#install-docker-linux-
+
+   Alternate/See also:
     - https://docs.docker.com/v1.11/linux/step_one/
     - https://docs.docker.com/engine/installation/
    
@@ -53,7 +53,7 @@ Build Hobbes XPMEM Kernel Module
 --------------------------------
 
 1. Build Host XPMEM
-    - See: [README.md#host-xpmem](./README.md#host-xpmem)
+    - [README.md#host-xpmem](./README.md#host-xpmem)
     - URL:https://github.com/naughtont3/docker-builds/tree/master/hobbes-dtk-demo/README.md#host-xpmem
 
 
