@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cat "./MOVED.md"
+echo "THIS MOVED!"
+exit 1
+
 username=naughtont3
 imagename=hobbes-dtk-demo
 
