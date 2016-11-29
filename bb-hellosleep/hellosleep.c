@@ -4,6 +4,11 @@
 #include <unistd.h>
 #include <sys/utsname.h>
 
+#ifdef _GNU_LIBC_VERSION_H
+  /* gnu_get_libc_version(), and gnu_get_libc_release() */
+  #include <gnu/libc-version.h>
+#endif /* _GNU_LIBC_VERSION_H */
+
 char *progname = "hellosleep";
 
 int usage(void) {
@@ -57,8 +62,14 @@ int main (int argc, char **argv)
         return (EXIT_FAILURE);
     }
 
-    printf ("[%d] INFO: %s %s %s %s\n",
-             (int)pid, hostname, buf.sysname, buf.release, buf.version);
+  #ifdef _GNU_LIBC_VERSION_H
+    printf ("[%d] INFO: %s %s-%s  libc-%s.%s\n",
+             (int)pid, hostname, buf.sysname, buf.release, 
+             gnu_get_libc_version(), gnu_get_libc_release());
+  #else
+    printf ("[%d] INFO: %s %s-%s\n",
+             (int)pid, hostname, buf.sysname, buf.release);
+  #endif /* _GNU_LIBC_VERSION_H */
 
     fflush(stdout);
 
