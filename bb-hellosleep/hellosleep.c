@@ -1,6 +1,7 @@
 /* Wed Sep 14 2016  11:19:43AM EDT   Thomas Naughton <naughtont@ornl.gov> */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 char *progname = "hellosleep";
 

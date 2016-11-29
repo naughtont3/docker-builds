@@ -8,6 +8,9 @@ imagename=bb-hellosleep
 #      YesRunMake (1), NoRunMake (0)
 runmake=1
 
+# Skip final "docker push" 1=skip, 0=push
+skip_push=0
+#skip_push=1
 
 # End Configs
 #####################################
@@ -32,15 +35,20 @@ if [ "${basename}" != "${imagename}" ] ; then
     fi
 fi
 
-if [ 1 == $runmake ] ; then
+if [ 1 == ${runmake} ] ; then
     make clean > /dev/null
     make > /dev/null || die "Failed compilation with make"
 fi
 
 docker build -t="${username}/${imagename}" .  || die "Docker Build failed"
-docker push ${username}/${imagename}          || die "Docker Push failed"
 
-if [ 1 == $runmake ] ; then
+if [ 0 == ${skip_push} ] ; then 
+    docker push ${username}/${imagename}          || die "Docker Push failed"
+else
+    echo "SKIPPING 'docker push'"
+fi
+
+if [ 1 == ${runmake} ] ; then
     make clean > /dev/null || die "Failed cleanup with make"
 fi
 
