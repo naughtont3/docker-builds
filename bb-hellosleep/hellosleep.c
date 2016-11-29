@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/utsname.h>
 
 char *progname = "hellosleep";
 
@@ -16,10 +17,14 @@ int usage(void) {
 
 int main (int argc, char **argv) 
 {
+    int rc = 0;
     int nsec = 0;
     int i = 0;
     int count = 0;
     pid_t pid;
+    struct utsname buf;
+    char hostname[64];
+    size_t len = 64;
 
     if (argc < 2) {
         fprintf (stderr, "Error: Missing arg 'SECONDS'\n");
@@ -38,6 +43,25 @@ int main (int argc, char **argv)
     pid = getpid();
     printf ("[%d] INFO: PID = %d\n", (int)pid, (int)pid);
 
+    rc = gethostname(hostname, len);
+    if (0 != rc) {
+        fprintf (stderr, "Error: Failed to get hostname\n");
+        perror("Error: gethostname() failed");
+        return (EXIT_FAILURE);
+    }
+
+    rc = uname(&buf);
+    if (0 != rc) {
+        fprintf (stderr, "Error: Failed to get kernel info\n");
+        perror("Error: uname() failed");
+        return (EXIT_FAILURE);
+    }
+
+    printf ("[%d] INFO: %s %s %s %s\n",
+             (int)pid, hostname, buf.sysname, buf.release, buf.version);
+
+    fflush(stdout);
+
     i = nsec;
     count = 0;
     while (i > 0) {
@@ -47,12 +71,14 @@ int main (int argc, char **argv)
         if (i > 10) {
             printf ("[%d] INFO: SLEEP %d  (loopcount: %d, total: %d)\n", 
                    (int)pid, 10, count, nsec);
+            fflush(stdout);
             sleep(10);
             i = i - 10;
         } else {
             /* remainder */
             printf ("[%d] INFO: SLEEP %d  (loopcount: %d, total: %d)\n", 
                    (int)pid, i, count, nsec);
+            fflush(stdout);
             sleep(i);
             i = i - i;
         }
