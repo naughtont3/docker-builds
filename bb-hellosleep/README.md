@@ -11,11 +11,12 @@ passed.
 For example: Run for 21 seconds.
 
     pokey:$ ./hellosleep 21
-    [31237] INFO: PID = 31237
-    [31237] INFO: SLEEP 10  (loopcount: 1, total: 21)
-    [31237] INFO: SLEEP 10  (loopcount: 2, total: 21)
-    [31237] INFO: SLEEP 1  (loopcount: 3, total: 21)
-    pokey:$ 
+    [21955] INFO: PID = 21955
+    [21955] INFO: pokey Linux 3.13.0-100-generic #147-Ubuntu SMP Tue Oct 18 16:48:51 UTC 2016
+    [21955] INFO: SLEEP 10  (loopcount: 1, total: 21)
+    [21955] INFO: SLEEP 10  (loopcount: 2, total: 21)
+    [21955] INFO: SLEEP 1  (loopcount: 3, total: 21)
+    pokey:$
 
 Usage: hellosleep SECONDS
    SECONDS -- Number of seconds to sleep
