@@ -5,7 +5,7 @@
 imagename=naughtont3/ubuntu1404mpidev
 
    # TESTING: −− (Part−2) SLAVE VE for Parallel Tests −−
-docker run -d --name slave-1 --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro $imagename
+docker run --hostname=s1 -d --name slave-1 --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro $imagename
 
 #   # −− (Part−2) SLAVE VE for Parallel Tests −−
 #   # Limit to 48GiB, not explicitly restricting Num cpus 

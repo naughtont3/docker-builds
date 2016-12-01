@@ -5,7 +5,7 @@
 imagename=naughtont3/ubuntu1404mpidev
 
    # TESTING: −− (Part−1) MASTER VE for Parallel Tests −− 
-docker run --name master --privileged -ti -v /sys/fs/cgroup:/sys/fs/cgroup:ro $imagename /bin/bash
+docker run --hostname=master --name master --privileged -ti -v /sys/fs/cgroup:/sys/fs/cgroup:ro $imagename /bin/bash
 
    # −− (Part−1) MASTER VE for Parallel Tests −− 
    # Limit to 48GiB, not explicitly restricting Num cpus 
