@@ -1,0 +1,60 @@
+diff --git a/gups/Makefile b/gups/Makefile
+index 95f9c5e..6f721be 100644
+--- a/gups/Makefile
++++ b/gups/Makefile
+@@ -12,6 +12,7 @@
+ CC =  oshcc
+ CXX = oshcc
+ CFLAGS = -O3
++#CFLAGS = -O3 -DLOCAL_USEMPI
+ INCDIR = -Iinclude
+ LDFLAGS = $(CFLAGS) -lm
+ TARGET  = ra_shmem
+diff --git a/gups/SHMEMRandomAccess.c b/gups/SHMEMRandomAccess.c
+index a54a21d..092166e 100644
+--- a/gups/SHMEMRandomAccess.c
++++ b/gups/SHMEMRandomAccess.c
+@@ -118,6 +118,14 @@
+ #define CHUNK    1
+ #define CHUNKBIG (32*CHUNK)
+ 
++ /*
++  * If want to use MPI + OpenSHMEM,
++  * define LOCAL_USEMPI true (e.g., -DLOCAL_USEMPI)
++  */
++#ifndef LOCAL_USEMPI
++#define LOCAL_USEMPI 0
++#endif
++
+ void
+ do_abort(char* f)
+ {
+@@ -224,18 +232,27 @@ int main(int argc, char **argv)
+   int provided;
+ 
+   start_pes(0);
+-  MPI_Init( &argc, &argv );
+ 
++ #if LOCAL_USEMPI
++  MPI_Init( &argc, &argv );
+   MPI_Comm_size( MPI_COMM_WORLD, &commSize );
+   MPI_Comm_rank( MPI_COMM_WORLD, &myRank );
++ #endif /* LOCAL_USEMPI */
+ 
+   outFname = "hpccoutf.txt";
+ 
++ #if LOCAL_USEMPI
+   MPI_Barrier( MPI_COMM_WORLD );
++ #else
++  shmem_barrier_all();
++ #endif /* LOCAL_USEMPI */
+ 
+   HPCC_SHMEMRandomAccess( &params );
+ 
++ #if LOCAL_USEMPI
+   MPI_Finalize();
++ #endif /* LOCAL_USEMPI */
++
+   return 0;
+ 
+ }
