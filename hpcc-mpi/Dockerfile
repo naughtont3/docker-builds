@@ -38,11 +38,12 @@ ARG GITHUB_TOKEN=thetoken
 ENV PREFIX=/usr/local
 RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/src" \
+    && mkdir -p "${PREFIX}/src/tar" \
     && mkdir -p "${PREFIX}/src/config"  
 
 ADD runit.sh /runit.sh
-ADD files/hpcc-1.5.0.tar.gz  		${PREFIX}/src/hpcc-1.5.0.tar.gz
-ADD files/Make.Make.My_MPI_OpenBLAS ${PREFIX}/src/config/Make.My_MPI_OpenBLAS
+ADD files/hpcc-1.5.0.tar.gz  		${PREFIX}/src/tar/
+ADD files/Make.My_MPI_OpenBLAS      ${PREFIX}/src/config/
 #ADD patches/PR2-tjn-gups-nompi.diff ${PREFIX}/src/config/PR2-tjn-gups-nompi.diff
 
 #ENV container docker
@@ -98,10 +99,12 @@ RUN apt-get -y update \
 
 # 1) Extract archive containing HPCC code, also setup HPL dir and makefile
 #	 (which will result in: /usr/local/src/hpcc-<version>)
-RUN cd ${PREFIX}/src && \
-	tar -zxf hpcc-1.5.0.tar.gz -C ${PREFIX}/src/ && \
-	mkdir -p ${PREFIX}/src/hpcc-1.5.0/hpl/ && \
-	cp -f ${PREFIX}/src/config/Make.Make.My_MPI_OpenBLAS ${PREFIX}/src/hpcc-1.5.0/Make.Make.My_MPI_OpenBLAS
+RUN cd ${PREFIX}/src/tar && \
+	tar -zxf hpcc-1.5.0.tar.gz -C ${PREFIX}/src
+
+RUN cd ${PREFIX}/src/hpcc-1.5.0 && \
+    mkdir -p ${PREFIX}/src/hpcc-1.5.0/hpl/ && \
+	cp -f ${PREFIX}/src/config/Make.My_MPI_OpenBLAS ${PREFIX}/src/hpcc-1.5.0/hpl/Make.My_MPI_OpenBLAS
 
 
 # # N) Checkout OSB git with GUPS benchmark into "${PREFIX}/src"
