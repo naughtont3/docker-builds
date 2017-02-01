@@ -41,10 +41,15 @@ RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/src/tar" \
     && mkdir -p "${PREFIX}/src/config"  
 
-ADD runit.sh /runit.sh
-ADD files/hpcc-1.5.0.tar.gz  		${PREFIX}/src/tar/
+# XXX: NOTE The Docker 'ADD' command will automagically extract tarballs!
+#      e.g., adding 'hpcc-1.5.0.tar.gz' to "$prefix/src" 
+#      creates "$prefix/src/hpcc-1.5.0/".
+ADD files/hpcc-1.5.0.tar.gz  		${PREFIX}/src/
 ADD files/Make.My_MPI_OpenBLAS      ${PREFIX}/src/config/
+ADD files/runit.sh                  /runit.sh
+
 #ADD patches/PR2-tjn-gups-nompi.diff ${PREFIX}/src/config/PR2-tjn-gups-nompi.diff
+
 
 #ENV container docker
 
@@ -57,14 +62,16 @@ RUN apt-get -y update \
         ca-certificates \
     && apt-get clean
 
-# # Install SSH client/server
-# RUN apt-get update \
-#     && apt-get upgrade -y \
-#     && apt-get dist-upgrade -y \
-#     && apt-get install -y --no-install-recommends \
-#         openssh-client \
-#         openssh-server \
-#     && apt-get clean
+# Install SSH client/server
+#  o Note: We use 'ssh-keygen' from openssh-client in add 'mpiuser' step.)
+#  o Note: Add 'sshd' from openssh-client in case we need that too.
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get dist-upgrade -y \
+    && apt-get install -y --no-install-recommends \
+        openssh-client \
+        openssh-server \
+    && apt-get clean
 
 # Install various useful/prereq packages 
 RUN apt-get -y update \
@@ -97,12 +104,8 @@ RUN apt-get -y update \
 #### Done with base setup and install of pre-reqs,
 #### Now ready for project/demo source checkouts and symlinks, etc.
 
-# 1) Extract archive containing HPCC code, also setup HPL dir and makefile
-#	 (which will result in: /usr/local/src/hpcc-<version>)
-RUN cd ${PREFIX}/src/tar && \
-	tar -zxf hpcc-1.5.0.tar.gz -C ${PREFIX}/src
-
-RUN cd ${PREFIX}/src/hpcc-1.5.0 && \
+# 1) Setup Makefile, etc. for HPCC (note: 'ADD' cmd extracts tarball!)
+RUN cd ${PREFIX}/src/hpcc-1.5.0/ && \
     mkdir -p ${PREFIX}/src/hpcc-1.5.0/hpl/ && \
 	cp -f ${PREFIX}/src/config/Make.My_MPI_OpenBLAS ${PREFIX}/src/hpcc-1.5.0/hpl/Make.My_MPI_OpenBLAS
 
