@@ -8,7 +8,32 @@ implementation of MPI.
 
  - NOTE: Currently using 'naughtont3' for DockerHUB but account,
          but ultimately this should be changed.
+ 
+ - NOTE: By default we will start as user `mpiuser`.  To override,
+         and start as `root`, pass the `--user=root` to docker command line.
 
+ - NOTE: The HPCC problem input arguments (as per Charlotte Kotas),
+     - `N` -- size of the problem
+     - `NB` -- block size
+     - `P` -- how to distribute MPI processes (P*Q should be num MPI procs)
+     - `Q` -- how to distribute MPI processes (P*Q should be num MPI procs)
+     - N should be divisible by NB
+     - N recommended to be sqrt( 0.8*RAM in Bytes/8)
+     - Edit these in the input file `hpccinf.txt`, which is placed in
+       same directory where `hpcc` is run.
+
+ - NOTE: Example HPCC command-line:
+
+    ```
+      # Edit N, NB, P, Q values in input file
+     vi hpccinf.txt
+     nprocs=$(echo "${P} * ${Q}" | bc)"
+     mpirun -np $nprocs  --hostfile hosts hpcc 
+    ```
+
+    ```
+     mpirun -np 16  --hostfile hosts hpcc 
+    ```
 
 Running HPCC Demo
 -----------------
