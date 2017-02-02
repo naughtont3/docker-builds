@@ -16,7 +16,7 @@ implementation of MPI.
 
  - NOTE: Edit 'hpccinf.txt' input file manually.
 
- - NOTE: The HPCC problem input arguments (as per Charlotte Kotas),
+ - NOTE: The HPCC problem input arguments (thanks Charlotte Kotas):
      - `N` -- size of the problem
      - `NB` -- block size
      - `P` -- how to distribute MPI processes (P*Q should be num MPI procs)
