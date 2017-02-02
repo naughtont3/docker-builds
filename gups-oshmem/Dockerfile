@@ -51,7 +51,7 @@ RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/src" \
     && mkdir -p "${PREFIX}/src/config"  
 
-ADD runit.sh /runit.sh
+ADD files/run-gups.sh /run-gups.sh
 
 #ENV container docker
 
@@ -146,6 +146,6 @@ RUN cd ${PREFIX}/src/gups-shmem && \
     cp gups /usr/local/bin
 
 # TODO: Use a non-root user
-#CMD ["oshrun", "--allow-run-as-root", "-np", "1", "${PREFIX}/bin/ra_shmem"]
-CMD ["/runit.sh"]
+
+CMD ["/run-gups.sh"]
 
