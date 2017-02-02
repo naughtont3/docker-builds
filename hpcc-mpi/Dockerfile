@@ -139,11 +139,11 @@ RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
     && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
 ###
 
-# Default to non-root user ('mpiuser')
-USER mpiuser
-
 # Chown all the src code to 'mpiuser'
 RUN chown -R mpiuser ${PREFIX}/src
+
+# Default to non-root user ('mpiuser')
+USER mpiuser
 
 # Build HPCC
 RUN cd ${PREFIX}/src/hpcc-1.5.0 && \
