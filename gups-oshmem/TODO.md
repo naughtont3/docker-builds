@@ -1,6 +1,6 @@
 TODO
 ====
- - [ ] finish testing openshmem-org version of gups-shmem
+ - [x] finish testing openshmem-org version of gups-shmem
  - [ ] move runscript to files/ dir, update Dockerfile accordingly
  - [ ] rename runit.sh to run-gups.sh
  - [ ] push this image up to DockerHub

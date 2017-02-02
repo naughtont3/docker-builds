@@ -2,6 +2,11 @@
 
 cd /tmp
 
-oshrun --allow-run-as-root --mca plm isolated  -np 1 ra_shmem
+oshrun --allow-run-as-root --mca plm isolated  -np 1 gups
+rc=$?
 
-cat /tmp/hpccoutf.txt
+if [ -f hpccoutf.txt ] ; then
+    cat hpccoutf.txt
+fi
+
+exit $rc

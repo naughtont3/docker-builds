@@ -2,14 +2,13 @@ gups-oshmem
 =========
 
 GUPS (Giga UPdates per Second) is a memory benchmark.
-This version of GUPS has been extended to use OpenSHMEM,
-and is taken from the ORNL-Languages repository
-(https://github.com/ornl-languages/osb).
+This version of GUPS has been extended to use OpenSHMEM.
+(https://github.com/openshmem-org/gups-shmem.git)
 
 This container-ized version of GUPS uses Ubuntu and OpenMPI's
 implementation of OpenSHMEM.
 
- - NOTE: Using Private Github repository, so see notes for
+ - NOTE: If using Private Github repository, see notes for
          generating a 'Personal Access Tokens'.
 
  - NOTE: Currently using 'naughtont3' for DockerHUB but account,
@@ -31,7 +30,6 @@ Running GUPS Demo
 
       cd /tmp
       oshrun --allow-run-as-root --mca plm isolated  -np 1 ra_shmem
-      cat /tmp/hpccoutf.txt
      ```
 
 - **NOTE** on Container Usage Model: 
@@ -61,9 +59,7 @@ Running GUPS Demo
         #  Note: First start shell (bash) and then run 'ra_shmem'.
      docker exec -ti gups_demo bash
 
-     cd /benchmarks/gups/
-
-     oshrun -np 1 ./ra_shmem
+     oshrun -np 1 ra_shmem
     ```
 
 
@@ -125,17 +121,21 @@ Building 'gups-oshmem' Docker Image
   (TODO: FIXME - use proper URL for the docker files)
 
   ```
-    git clone https://github.com/ornl-languages/osb.git
+    git clone https://github.com/naughtont3/docker-builds.git
   ```
 
 - Change to the 'gups-oshmem' area 
 
   ```
-    cd osb/docker/gups-oshmem/
+    cd docker-builds/gups-oshmem/
   ```
 
-- Run ```docker build``` (passing a Github token via 'mytoken' file)
-  (NOTE: 'Personal Access Tokens' below for more details.)
+- (Option-1) Run the `dockerhub-build-push.sh` script.
+
+- (Option-2) Run `docker build` directly
+   - Note: In some case may need to pass a Github token 
+     via 'mytoken' file  (See 'Personal Access Tokens' 
+     below for more details.)
 
   ```
     docker build \
@@ -186,7 +186,7 @@ the private repositories.
 
 NOTES
 -----
-- Note, since the OSB repo is a private Github repository,
+- Note, if the repo is a private Github repository,
   you should generate a "Personal access token" at Github
   and pass it via a ```--build-arg``` to the ```GITHUB_TOKEN```
   that is used in the Dockerfile.

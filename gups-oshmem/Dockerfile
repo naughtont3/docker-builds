@@ -27,6 +27,8 @@
 ###########################################################################
 #
 # NOTES:
+# - 02feb2017: Change to public 'gups-shmem' repo from openshmem-org,
+#    (https://github.com/openshmem-org/gups-shmem.git). 
 # - 18jan2017: Initial creation based on previous Hobbes and other containers
 #
 ###########################################################################
@@ -49,7 +51,6 @@ RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/src" \
     && mkdir -p "${PREFIX}/src/config"  
 
-ADD patches/PR2-tjn-gups-nompi.diff ${PREFIX}/src/config/PR2-tjn-gups-nompi.diff
 ADD runit.sh /runit.sh
 
 #ENV container docker
@@ -129,27 +130,22 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 
 
-# 1) Checkout OSB git with GUPS benchmark into "${PREFIX}/src"
-#    (which will result in: /usr/local/src/osb)
-#    URL: https://github.com/ornl-languages/osb
+# 1) Checkout openshmem-org's GUPS benchmark into "${PREFIX}/src"
+#    (which will result in: /usr/local/src/gups-shmem)
+#    URL: https://github.com/openshmem-org/gups-shmem.git
 RUN cd ${PREFIX}/src/ && \
-    git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/ornl-languages/osb.git 
-
-# 1.1) Patch to remove MPI usage in GUPS code (pull-request #2)
-RUN cd ${PREFIX}/src/osb && \
-    patch -p 1 < ${PREFIX}/src/config/PR2-tjn-gups-nompi.diff
-
+    git clone https://github.com/openshmem-org/gups-shmem.git
 
 #### Done getting all the source code/patching. 
 #### Now need kick off the configure(s) and build(s)!
 #### Note, we'll build at end to ensure we build all in proper order.
 
 # Build GUPS
-RUN cd ${PREFIX}/src/osb/gups && \
+RUN cd ${PREFIX}/src/gups-shmem && \
     make && \
-    cp ra_shmem ${PREFIX}/bin
+    cp gups /usr/local/bin
 
 # TODO: Use a non-root user
 #CMD ["oshrun", "--allow-run-as-root", "-np", "1", "${PREFIX}/bin/ra_shmem"]
-CMD ["ra_shmem"]
+CMD ["/runit.sh"]
 
