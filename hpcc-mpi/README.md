@@ -159,17 +159,21 @@ Building 'hpcc-mpi' Docker Image
   (TODO: FIXME - use proper URL for the docker files)
 
   ```
-    git clone https://github.com/ornl-languages/osb.git
+    git clone https://github.com/naughtont3/docker-builds.git
   ```
 
 - Change to the 'hpcc-mpi' area 
 
   ```
-    cd osb/docker/hpcc-mpi/
+    cd hpcc-mpi/
   ```
 
-- Run ```docker build``` (passing a Github token via 'mytoken' file)
-  (NOTE: 'Personal Access Tokens' below for more details.)
+- (Option-1) Run the `dockerhub-build-push.sh` script.
+
+- (Option-2) Run `docker build` directly
+   - Note: In some case may need to pass a Github token 
+     via 'mytoken' file  (See 'Personal Access Tokens' 
+     below for more details.)
 
   ```
     docker build \
