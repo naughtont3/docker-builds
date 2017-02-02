@@ -17,6 +17,10 @@
 ###########################################################################
 #
 # NOTES:
+# - 02feb2017: Change prefix to /benchmarks and add generic HPCC symlink 
+#              to latest hpcc src dir so scripts can avoid changes when
+#              we bump the hpcc release.  Also add a runs dir under
+#              benchmarks for storing test runs, rename runit to run-hpcc.
 # - 31jan2017: Initial creation based on my previous container templates,
 #			   using notes from Charlotte Kotas for HPCC setup/build.
 #              Using HPCC v1.5.0 from http://icl.cs.utk.edu/hpcc/software
@@ -34,19 +38,23 @@ ARG NPROCS=4
 # (See: https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
 ARG GITHUB_TOKEN=thetoken
 
-# Set PREFIX to a common Hobbes directory
-ENV PREFIX=/usr/local
+# Set PREFIX to a common Benchmark directory
+ENV PREFIX=/benchmarks
 RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/src" \
     && mkdir -p "${PREFIX}/src/tar" \
-    && mkdir -p "${PREFIX}/src/config"  
+    && mkdir -p "${PREFIX}/src/config" \
+    && mkdir -p "${PREFIX}/runs" \ 
+    && mkdir -p "${PREFIX}/runs/Test1"  
 
 # XXX: NOTE The Docker 'ADD' command will automagically extract tarballs!
 #      e.g., adding 'hpcc-1.5.0.tar.gz' to "$prefix/src" 
 #      creates "$prefix/src/hpcc-1.5.0/".
 ADD files/hpcc-1.5.0.tar.gz  		${PREFIX}/src/
 ADD files/Make.My_MPI_OpenBLAS      ${PREFIX}/src/config/
-ADD files/runit.sh                  /runit.sh
+ADD files/run-hpcc.sh               ${PREFIX}/runs/run-hpcc.sh
+ADD files/hpccinf.txt               ${PREFIX}/runs/hpccinf.txt
+ADD files/hpccinf.txt               ${PREFIX}/src/config/hpccinf.txt
 
 #ADD patches/PR2-tjn-gups-nompi.diff ${PREFIX}/src/config/PR2-tjn-gups-nompi.diff
 
@@ -104,10 +112,14 @@ RUN apt-get -y update \
 #### Done with base setup and install of pre-reqs,
 #### Now ready for project/demo source checkouts and symlinks, etc.
 
-# 1) Setup Makefile, etc. for HPCC (note: 'ADD' cmd extracts tarball!)
-RUN cd ${PREFIX}/src/hpcc-1.5.0/ && \
-    mkdir -p ${PREFIX}/src/hpcc-1.5.0/hpl/ && \
-	cp -f ${PREFIX}/src/config/Make.My_MPI_OpenBLAS ${PREFIX}/src/hpcc-1.5.0/hpl/Make.My_MPI_OpenBLAS
+# 1) Create a symlink of HPCC to "latest" hpcc release dir
+RUN cd ${PREFIX}/src/ && \
+    ln -s ${PREFIX}/src/hpcc-1.5.0 ${PREFIX}/src/HPCC 
+
+# 2) Setup Makefile, etc. for HPCC (note: 'ADD' cmd extracts tarball!)
+RUN cd ${PREFIX}/src/HPCC/ && \
+    mkdir -p ${PREFIX}/src/HPCC/hpl/ && \
+	cp -f ${PREFIX}/src/config/Make.My_MPI_OpenBLAS ${PREFIX}/src/HPCC/hpl/Make.My_MPI_OpenBLAS
 
 
 # # N) Checkout OSB git with GUPS benchmark into "${PREFIX}/src"
@@ -140,18 +152,19 @@ RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
 ###
 
 # Chown all the src code to 'mpiuser'
-RUN chown -R mpiuser ${PREFIX}/src
+RUN chown -R mpiuser ${PREFIX}/
 
 # Default to non-root user ('mpiuser')
 USER mpiuser
 
 # Build HPCC
-RUN cd ${PREFIX}/src/hpcc-1.5.0 && \
+RUN cd ${PREFIX}/src/HPCC && \
     make arch=My_MPI_OpenBLAS 
 
 # Go ahead and add 'hpcc' binary to path
-ENV PATH=${PREFIX}/src/hpcc-1.5.0:$PATH
+ENV PATH=${PREFIX}/src/HPCC:$PATH
 
 # Default to runscript
-CMD ["/runit.sh"]
+# (TJN: Seems we can not use ${PREFIX} var with 'CMD'
+CMD ["/benchmarks/runs/run-hpcc.sh"]
 

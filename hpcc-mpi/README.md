@@ -9,8 +9,12 @@ implementation of MPI.
  - NOTE: Currently using 'naughtont3' for DockerHUB but account,
          but ultimately this should be changed.
  
- - NOTE: By default we will start as user `mpiuser`.  To override,
+ - NOTE: By default, we will start as user `mpiuser`.  To override,
          and start as `root`, pass the `--user=root` to docker command line.
+
+ - NOTE: By default, Benchmarks are in `/benchmarks` directory.
+
+ - NOTE: Edit 'hpccinf.txt' input file manually.
 
  - NOTE: The HPCC problem input arguments (as per Charlotte Kotas),
      - `N` -- size of the problem
@@ -19,8 +23,7 @@ implementation of MPI.
      - `Q` -- how to distribute MPI processes (P*Q should be num MPI procs)
      - N should be divisible by NB
      - N recommended to be sqrt( 0.8*RAM in Bytes/8)
-     - Edit these in the input file `hpccinf.txt`, which is placed in
-       same directory where `hpcc` is run.
+     - Edit these in the input file `hpccinf.txt` (see "# EDIT:" lines)
 
  - NOTE: Example HPCC command-line:
 
@@ -35,21 +38,34 @@ implementation of MPI.
      mpirun -np 16  --hostfile hosts hpcc 
     ```
 
+ - NOTE: Current (2feb2017) DEFAULTS for run script/input file:
+    - MPIRUN np:  1  (localhost)
+    - HPCC  Exe:  /benchmarks/src/HPCC/hpcc
+    - HPCC    N:  2000
+    - HPCC   NB:  40
+    - HPCC    P:  1
+    - HPCC    Q:  2
+
 Running HPCC Demo
 -----------------
 - Quick test: 
 
     ```
-     docker run --rm -ti  naughtont3/hpcc-mpi /runit.sh
+     docker run --rm -ti  naughtont3/hpcc-mpi /benchmarks/runs/run-hpcc.sh
+
+      #--(same as using default CMD)-- 
+
+     docker run --rm -ti  naughtont3/hpcc-mpi 
     ```
 
   - This just runs `HPCC` and shows output file for 1 instance.
+
      ```
-      cat runit.sh 
+      cat run-hpcc.sh 
       #!/bin/bash
 
-      cd /tmp
-      mpirun --allow-run-as-root --mca plm isolated  -np 1 hpcc
+      export PATH=/benchmarks/src/HPCC:$PATH
+      mpirun --allow-run-as-root --mca plm isolated  -np 1 /benchmarks/src/HPCC/hpcc
      ```
 
 - **NOTE** on Container Usage Model: 
