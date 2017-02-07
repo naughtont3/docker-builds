@@ -70,6 +70,7 @@ RUN yum -y update \
         ncurses \
         ncurses-devel \
         ncurses-libs \
+        ncurses-static \
         libstdc++ \
         libstdc++-devel \
         libtool \
