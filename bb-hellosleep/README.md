@@ -25,6 +25,9 @@ Usage: hellosleep SECONDS
 See also Docker Hub repo
 https://hub.docker.com/r/naughtont3/bb-hellosleep
 
+NOTES
+-----
+ - Default command set to 'hellosleep 5'
 
 Useful Docker Commands
 ----------------------

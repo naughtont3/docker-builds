@@ -25,6 +25,7 @@
 ###########################################################################
 #
 # NOTES:
+#  - 03mar2017: Add a default command ('CMD') of 'hellosleep 5'
 #  - 03nov2016: Initial version.
 #
 ###########################################################################
@@ -34,5 +35,7 @@ FROM busybox
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
 COPY ./hellosleep-static /usr/bin/hellosleep-static
-RUN  ln -s /usr/bin/hellosleep-static /usr/bin/hellosleep
+RUN ln -s /usr/bin/hellosleep-static /usr/bin/hellosleep
 
+# Default to runscript
+CMD ["/usr/bin/hellosleep", "5"]
