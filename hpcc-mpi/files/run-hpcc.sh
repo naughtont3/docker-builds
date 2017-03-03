@@ -2,5 +2,5 @@
 
 export PATH=/benchmarks/src/HPCC:$PATH
 
-mpirun --allow-run-as-root --mca plm isolated  -np 1 /benchmarks/src/HPCC/hpcc
+mpirun --allow-run-as-root --mca plm isolated  -np 2 /benchmarks/src/HPCC/hpcc
 

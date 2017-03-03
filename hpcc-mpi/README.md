@@ -39,7 +39,7 @@ implementation of MPI.
     ```
 
  - NOTE: Current (2feb2017) DEFAULTS for run script/input file:
-    - MPIRUN np:  1  (localhost)
+    - MPIRUN np:  2  (localhost)
     - HPCC  Exe:  /benchmarks/src/HPCC/hpcc
     - HPCC    N:  2000
     - HPCC   NB:  40
@@ -65,7 +65,7 @@ Running HPCC Demo
       #!/bin/bash
 
       export PATH=/benchmarks/src/HPCC:$PATH
-      mpirun --allow-run-as-root --mca plm isolated  -np 1 /benchmarks/src/HPCC/hpcc
+      mpirun --allow-run-as-root --mca plm isolated  -np 2 /benchmarks/src/HPCC/hpcc
      ```
 
 - **NOTE** on Container Usage Model: 
@@ -97,7 +97,7 @@ Running HPCC Demo
 
      cd /benchmarks/hpcc/
 
-     mpirun --allow-run-as-root --mca plm isolated  -np 1 hpcc
+     mpirun --allow-run-as-root --mca plm isolated  -np 2 hpcc
     ```
 
 
