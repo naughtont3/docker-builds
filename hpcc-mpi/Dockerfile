@@ -91,10 +91,12 @@ RUN apt-get -y update \
         gfortran \
         git \
         libtool \
+        net-tools \
         m4 \
         make \
         patch \
         perl \
+        vim \
         wget \
         zlib1g-dev \
     && apt-get clean
