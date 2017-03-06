@@ -90,6 +90,7 @@ RUN apt-get -y update \
         gcc \
         gfortran \
         git \
+        iputils-ping \
         libtool \
         net-tools \
         m4 \
@@ -153,6 +154,9 @@ RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
     && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
 ###
 
+# Create sshd run dir
+RUN mkdir /var/run/sshd
+
 # Chown all the src code to 'mpiuser'
 RUN chown -R mpiuser ${PREFIX}/
 
@@ -169,4 +173,3 @@ ENV PATH=${PREFIX}/src/HPCC:$PATH
 # Default to runscript
 # (TJN: Seems we can not use ${PREFIX} var with 'CMD'
 CMD ["/benchmarks/runs/run-hpcc.sh"]
-
