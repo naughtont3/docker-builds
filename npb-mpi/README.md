@@ -2,6 +2,7 @@ npb-mpi
 =========
 
 NASA Parallel Benchmarks (NPB).
+https://www.nas.nasa.gov/publications/npb.html
 
 This container-ized version of NPB uses Ubuntu and OpenMPI's
 implementation of MPI.
