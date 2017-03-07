@@ -17,7 +17,10 @@
 ###########################################################################
 #
 # NOTES:
-# - 06mar2016: Initial creation based on my previous container templates.
+# - 07mar2017: Switch to 'COPY' instead of 'ADD' for tarball inclusion and 
+#              re-arrange chown-ing to be in same layer as tarball extration
+#              to avoid strange quirks with layered permissions.
+# - 06mar2017: Initial creation based on my previous container templates.
 #              Using NPB v3.3.1 from https://www.nas.nasa.gov/assets/npb/NPB3.3.1.tar.gz
 #            
 ###########################################################################
@@ -45,7 +48,8 @@ RUN mkdir -p "${PREFIX}" \
 # XXX: NOTE The Docker 'ADD' command will automagically extract tarballs!
 #      e.g., adding 'NPB3.3.1.tar.gz' to "$prefix/src" 
 #      creates "$prefix/src/NPB3.3.1/"
-ADD files/NPB3.3.1.tar.gz           ${PREFIX}/src/
+#      Ah-Ha!  Docker 'COPY' does *not* do all the magic of 'ADD'!
+COPY files/NPB3.3.1.tar.gz          ${PREFIX}/src/tar/
 ADD files/make.def-NPB-ompi         ${PREFIX}/src/config/
 ADD files/suite.def-NPB-ompi        ${PREFIX}/src/config/
 ADD files/run-npb.sh                ${PREFIX}/runs/run-npb.sh
@@ -106,18 +110,37 @@ RUN apt-get -y update \
     && apt-get clean
 
 
+###
+# TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
+RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
+    && su -c "echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" mpiuser  \
+    && su -c "echo 'export PATH=/usr/lib64/openmpi/bin/:\$PATH' >> ~/.bashrc" mpiuser \
+    && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" mpiuser \
+    && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" mpiuser \
+    && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
+     ; su -c "echo -n '* ' > ~/.ssh/known_hosts \
+    && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
+
+###
 #### Done with base setup and install of pre-reqs,
 #### Now ready for project/demo source checkouts and symlinks, etc.
 
-# 1) Create a symlink of NPB MPI to "latest" npb release dir
+# 1) Extract the NPB tarball (b/c we used Docker 'COPY' instead of 'ADD')
+#
+# 2) Create a symlink of NPB MPI to "latest" npb release dir
 #    (Note: NPB has subdir with MPI specific code for the given release.)
-RUN cd ${PREFIX}/src/ && \
-    ln -s ${PREFIX}/src/NPB3.3.1/NPB3.3-MPI ${PREFIX}/src/NPB
-
-# 2) Setup Makefile, etc. for NPB (note: 'ADD' cmd extracts tarball!)
-RUN cd ${PREFIX}/src/NPB/ && \
+#
+# 3) Setup Makefile, etc. for NPB
+#
+# 4) fixup the permissions for everything (done in this layer)
+RUN cd ${PREFIX}/src/tar/ && \
+    tar -zxf NPB3.3.1.tar.gz -C ${PREFIX}/src/ && \
+    cd ${PREFIX}/src/ && \
+    ln -s ${PREFIX}/src/NPB3.3.1/NPB3.3-MPI ${PREFIX}/src/NPB && \
+    cd ${PREFIX}/src/NPB/ && \
 	cp -f ${PREFIX}/src/config/make.def-NPB-ompi  ${PREFIX}/src/NPB/config/make.def && \
-	cp -f ${PREFIX}/src/config/suite.def-NPB-ompi ${PREFIX}/src/NPB/config/suite.def
+	cp -f ${PREFIX}/src/config/suite.def-NPB-ompi ${PREFIX}/src/NPB/config/suite.def && \
+    chown -R mpiuser.mpiuser ${PREFIX}/
 
 
 # # N) Checkout OSB git with GUPS benchmark into "${PREFIX}/src"
@@ -137,31 +160,17 @@ RUN cd ${PREFIX}/src/NPB/ && \
 #### Note, we'll build at end to ensure we build all in proper order.
 
 
-###
-# TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
-RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
-    && su -c "echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" mpiuser  \
-    && su -c "echo 'export PATH=/usr/lib64/openmpi/bin/:\$PATH' >> ~/.bashrc" mpiuser \
-    && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" mpiuser \
-    && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" mpiuser \
-    && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
-     ; su -c "echo -n '* ' > ~/.ssh/known_hosts \
-    && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
-###
-
 # Create sshd run dir
 RUN mkdir /var/run/sshd
 
-# Chown all the src code to 'mpiuser'
-RUN chown -R mpiuser ${PREFIX}/
-
-# Default to non-root user ('mpiuser')
+## Default to non-root user ('mpiuser')
 USER mpiuser
 
 # Build NPB suite
 RUN cd ${PREFIX}/src/NPB && \
     cat config/suite.def && \
-    make suite
+    make suite && \
+    chown -R mpiuser.mpiuser ${PREFIX}/src/NPB/
 
 # Go ahead and add NPB binaries to path
 ENV PATH=${PREFIX}/src/NPB/bin:$PATH
