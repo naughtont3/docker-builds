@@ -102,6 +102,9 @@ I now have to setup/start the SSHD to allow us to connect between the
 containers spanning hosts (connected via the docker network).
  - See also: [scripts/startSSHDs_v2.sh](scripts/startSSHDs_v2.sh)
 
+Install C3 tools to help with parallel commands/scripts, etc. 
+ - See 'Setup C3 Tools' below
+
 Lot of manual stuff...
 
  - Add the SSHKEY from my "headnode" container to each container
@@ -120,7 +123,7 @@ Lot of manual stuff...
         CMD: docker exec --user=root hpcc.2.smunank7hy15e06n31ksu7k99 /usr/sbin/sshd -p 2222
     ```
 
- - Add the `$HOME/.ssh/config` file with alternate `Port 2222` for our containers
+ - Add the `$HOME/.ssh/config` file with alternate `Port 2222` for our containers (on all hosts where we run MPI)
 
     ```
         or-c49:$ docker exec -ti hpcc.4.mhvsjtylzedauw1hngjrh8bew bash
@@ -158,6 +161,73 @@ Lot of manual stuff...
         27fe9375452b
         ec2f6e2a41db
     ```
+
+Setup C3 Tools
+--------------
+
+Install C3 tools to help with parallel commands/scripts, etc.
+ 
+ ```
+     # Login as 'root' on "headnode" for Docker nodes
+    or-c49:$ docker exec -ti --user root hpcc.4.mhvsjtylzedauw1hngjrh8bew bash
+    root@c38fe7ae1f62:/# wget http://www.csm.ornl.gov/torc/C3/Software/5.1.3/deb/c3_5.1.3-1_all.deb
+
+     # Instal C3 and any unmet dependencies (-f)
+    root@c38fe7ae1f62:/# apt-get install -f -y 
+ ```
+
+Create the `/etc/c3.conf` file with IPs for all hosts (see showIPs.sh).
+
+Assumming a hosts file like the following: 
+
+ ```
+        root#@c38fe7ae1f62:/# cat /tmp/hosts 
+        10.0.0.6
+        10.0.0.3
+        10.0.0.5
+        10.0.0.4
+ ```
+
+Create the `/etc/c3.conf` as follows:
+
+ ```
+        root#@c38fe7ae1f62:/# vi /etc/c3.conf
+        root#@c38fe7ae1f62:/# cat /etc/c3.conf
+         cluster my_docker_cluster {
+             10.0.0.6
+             dead remove_for_0-indexing
+             10.0.0.3
+             10.0.0.4
+             10.0.0.5
+         }
+        root#@c38fe7ae1f62:/# 
+ ```
+
+***NOTE***: In some cases, the `USER` envvar is not set when running shells under Docker.  If you see an error about `KeyError: 'USER'`, then define this envvar and things should work properly.
+
+  ```
+    mpiuser:$ cexec hostname
+    Traceback (most recent call last):
+      File "/usr/bin/cexec", line 145, in <module>
+        defusername = os.environ[ 'USER' ]
+      File "/usr/lib/python2.7/UserDict.py", line 40, in __getitem__
+        raise KeyError(key)
+    KeyError: 'USER'
+  ```
+ 
+  ```
+    mpiuser:$ export USER=mpiuser
+    mpiuser:$ cexec hostname
+    ************************* dkr *************************
+    --------- 10.0.0.3---------
+    3e374e4c93a5
+    --------- 10.0.0.4---------
+    fb8c0abfa2f1
+    --------- 10.0.0.5---------
+    d4f73cbb8393
+    mpiuser:$ cexec hostname
+  ```
+
 
 Shutdown HPCC Service
 ---------------------

@@ -86,6 +86,7 @@ RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
         autoconf \
         automake \
+        bc \
         g++ \
         gcc \
         gfortran \
@@ -97,6 +98,7 @@ RUN apt-get -y update \
         make \
         patch \
         perl \
+        time \
         vim \
         wget \
         zlib1g-dev \
