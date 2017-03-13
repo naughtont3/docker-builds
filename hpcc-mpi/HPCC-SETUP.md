@@ -162,10 +162,38 @@ Lot of manual stuff...
         ec2f6e2a41db
     ```
 
+ - MPI command args
+    - MCA params: `ompi_mca_params="-mca btl ^openib -mca btl_tcp_if_include eth0 -mca oob_tcp_if_include eth0 "`
+    - HPCC executable: `/benchmarks/src/HPCC/hpcc`
+    - Binding: `--bind-to hwthread`
+    - Other: `--report-bindings`
+    - Full MPI command example:
+
+      ```
+       time -p $MPIRUN \
+            --report-bindings \
+            --bind-to hwthread \
+            -np $mpi_nprocs \
+            --hostfile $mpi_hostfile \
+            $ompi_mca_params \
+            $HPCC
+      ```
+
+ - If not already in the image, I had to add `bc` and `time` for use with
+   run scripts (e.g., `run-hpcc.sh`).  Should be part of Dockerfile/image
+   now.
+
+     ```
+      root@c38fe7ae1f62:/# apt-get install -y bc time
+      ```
+
+
 Setup C3 Tools
 --------------
 
 Install C3 tools to help with parallel commands/scripts, etc.
+(C3 is currently used by my `run-hpcc.sh` script)
+
  
  ```
      # Login as 'root' on "headnode" for Docker nodes
@@ -174,6 +202,13 @@ Install C3 tools to help with parallel commands/scripts, etc.
 
      # Instal C3 and any unmet dependencies (-f)
     root@c38fe7ae1f62:/# apt-get install -f -y 
+ ```
+
+Note: In some cases I also had to explicitly add the `rsync` and `python` 
+packages for C3.
+
+ ```
+    root@c38fe7ae1f62:/# apt-get install -y rsync python
  ```
 
 Create the `/etc/c3.conf` file with IPs for all hosts (see showIPs.sh).
