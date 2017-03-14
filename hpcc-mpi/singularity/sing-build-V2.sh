@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SINGULARITY=/sw/TJN/bin/singularity
-SINGULARITY=/sw/TJN/FRESHTEST/bin/singularity
-IMAGE_FILE=hpcc-mpi-V2TMP.img
+SINGULARITY=/sw/TJN/bin/singularity
+#SINGULARITY=/sw/TJN/FRESHTEST/bin/singularity
+IMAGE_FILE=hpcc-mpi-V2.img
 IMAGE_DEF=hpcc-mpi-V2.def
 
 die () {
