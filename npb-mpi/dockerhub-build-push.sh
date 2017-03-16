@@ -2,10 +2,11 @@
 
 username=naughtont3
 imagename=npb-mpi
+imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push
-#skip_push=0
-skip_push=1
+skip_push=0
+#skip_push=1
 
 # Github token file
 # Note: We read it from a file to avoid hardcoding
@@ -45,13 +46,13 @@ if [ -f "${token_file}" ] ; then
     docker_build_args="--build-arg=GITHUB_TOKEN=${mytoken} "
 fi
 
-docker build ${docker_build_args} -t="${username}/${imagename}" .  || die "Docker Build failed"
+docker build ${docker_build_args} -t="${username}/${imagename}:${imagetag}" . || die "Docker Build failed"
 
-if [ ${skip_push} == 0 ] ; then 
-    docker push ${username}/${imagename}          || die "Docker Push failed"
+if [ ${skip_push} == 0 ] ; then
+    docker push ${username}/${imagename}:${imagetag} || die "Docker Push failed"
 else
     echo "SKIPPING 'docker push'"
 fi
 
-echo "*** Build/Push of ${username}/${imagename} Finished! ***"
+echo "*** Build/Push of ${username}/${imagename}:${imagetag} Finished! ***"
 exit 0

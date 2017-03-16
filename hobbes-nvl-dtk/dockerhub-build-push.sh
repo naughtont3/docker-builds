@@ -1,7 +1,7 @@
 #!/bin/bash
 
 username=naughtont3
-imagename=ubuntu1404-ompi-oshmem
+imagename=hobbes-nvl-dtk
 imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push

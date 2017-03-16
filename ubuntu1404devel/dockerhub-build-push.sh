@@ -2,10 +2,21 @@
 
 username=naughtont3
 imagename=ubuntu1404devel
+imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push
 skip_push=0
 #skip_push=1
+
+# Github token file
+# Note: We read it from a file to avoid hardcoding
+#       the private contents into a script.  It is
+#       then passed to Docker via a '--build-arg'.
+# See: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
+token_file=mytoken
+
+# Start with empty build_args string
+docker_build_args=
 
 # End Configs
 #####################################
@@ -30,13 +41,18 @@ if [ "${basename}" != "${imagename}" ] ; then
     fi
 fi
 
-docker build -t="${username}/${imagename}" .  || die "Docker Build failed"
+if [ -f "${token_file}" ] ; then
+    mytoken=`cat ${token_file}`
+    docker_build_args="--build-arg=GITHUB_TOKEN=${mytoken} "
+fi
 
-if [ 0 == ${skip_push} ] ; then
-    docker push ${username}/${imagename}      || die "Docker Push failed"
+docker build ${docker_build_args} -t="${username}/${imagename}:${imagetag}" . || die "Docker Build failed"
+
+if [ ${skip_push} == 0 ] ; then
+    docker push ${username}/${imagename}:${imagetag} || die "Docker Push failed"
 else
     echo "SKIPPING 'docker push'"
 fi
 
-echo "*** Build/Push of ${username}/${imagename} Finished! ***"
+echo "*** Build/Push of ${username}/${imagename}:${imagetag} Finished! ***"
 exit 0
