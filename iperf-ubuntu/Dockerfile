@@ -45,7 +45,6 @@ RUN mkdir -p "${PREFIX}" \
 #      e.g., adding 'iperf-3.1.3-source.tar.gz' to "$prefix/src" 
 #      creates "$prefix/src/iperf-3.1.3/".
 ADD files/iperf-3.1.3-source.tar.gz  ${PREFIX}/src/
-ADD files/run-iperf.sh               ${PREFIX}/runs/run-iperf.sh
 ADD files/run-iperf-client.sh        ${PREFIX}/runs/run-iperf-client.sh
 ADD files/run-iperf-server.sh        ${PREFIX}/runs/run-iperf-server.sh
 
