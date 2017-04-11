@@ -1,0 +1,22 @@
+BootStrap:docker
+From:ubuntu:16.04
+
+# setup: run on host (outside container) during bootstrap
+%setup
+    echo 'setup: Shell code that runs on host outside the container'
+    echo "setup: Dir '$SINGULARITY_ROOTFS'"
+
+
+# runscript: Not run during bootstrap, creates /singularity runscript 
+#    as default run action (inside container).
+%runscript
+	echo 'runscript: This gets run when you run the image'
+
+
+# post: Run once during bootstrap (inside container)
+%post
+	echo 'post: Hello from inside the container'
+
+
+# test: Run at end of bootstrap to validate conatiner (inside container)
+%test

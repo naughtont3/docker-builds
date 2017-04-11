@@ -1,0 +1,88 @@
+BootStrap:docker
+From:ubuntu:16.04
+
+# setup: run on host (outside container) during bootstrap
+%setup
+    echo 'setup: Shell code that runs on host outside the container'
+    echo "setup: Dir '$SINGULARITY_ROOTFS'"
+    ls $SINGULARITY_ROOTFS
+    export HOST_FILES=$SINGULARITY_ROOTFS/host_files
+    mkdir -p ${HOST_FILES}
+    ls ${HOST_FILES}
+    # Copy host files into container space
+    # NOTE: We just copy files directly from parent Docker build dir!
+    cp ../files/iperf-3.1.3-source.tar.gz   ${HOST_FILES}/
+    cp ../files/run-iperf-client.sh         ${HOST_FILES}/
+    cp ../files/run-iperf-server.sh         ${HOST_FILES}/
+    exit 0
+
+
+# runscript: Not run during bootstrap, creates /singularity runscript 
+#    as default run action (inside container).
+%runscript
+	echo 'runscript: This gets run when you run the image'
+    exit 0
+
+
+# post: Run once during bootstrap (inside container)
+%post
+	echo 'post: Hello from inside the container'
+    export PREFIX=/benchmarks
+    export HOST_FILES=/host_files
+    ls ${HOST_FILES}
+    # Just append these to end (instead of awk/sed'ing existing commented lines)
+    echo "deb http://archive.ubuntu.com/ubuntu/ xenial universe" >> /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe" >> /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ xenial-security universe" >> /etc/apt/sources.list
+
+    apt-get -y update \
+        && apt-get install -y --no-install-recommends \
+            vim \
+            make \
+        && apt-get clean
+
+    mkdir -p ${PREFIX}/src/config/
+    mkdir -p ${PREFIX}/src/tar/
+    mkdir -p ${PREFIX}/runs/
+
+    ####
+    # We should have bind mounted in the '/src' directory
+    # Example:
+    #    cd docker-builds/hpcc-mpi/
+    #    ls files/
+    #    sudo singularity exec -B files:/src -w MY.img /src/sing-setup.sh
+    ####
+    cp ${HOST_FILES}/iperf-3.1.3-source.tar.gz   ${PREFIX}/src/tar/
+    cp ${HOST_FILES}/run-iperf-client.sh         ${PREFIX}/runs/run-iperf-client.sh
+    cp ${HOST_FILES}/run-iperf-server.sh         ${PREFIX}/runs/run-iperf-server.sh
+
+    cd ${PREFIX}/src/tar/ && \
+        tar -zxf iperf-3.1.3-source.tar.gz -C ${PREFIX}/src/ && \
+        cd ${PREFIX}/src/ && \
+        ln -s ${PREFIX}/src/iperf-3.1.3 ${PREFIX}/src/IPERF && \
+        cd ${PREFIX}/src/IPERF/ && \
+        mkdir -p ${PREFIX}/src/IPERF/local && \
+        ./configure --prefix=${PREFIX}/src/local && \
+        make && \ 
+        make install
+    echo "ADD PATH=${PREFIX}/src/IPERF/local/bin:$PATH"
+
+    # XXX: For now we will not build HPCC so we can
+    #      use host provided src for the MPI
+    #      Ultimately may want to do the same for HPCC.
+  #  cd ${PREFIX}/src/HPCC && \
+  #      make arch=My_MPI_OpenBLAS 
+
+    # TODO: Create user 
+    # TODO: Chown files to proper user or group?
+    #chown -R mpiuser.mpiuser /benchmarks
+
+    exit 0
+
+
+# test: Run at end of bootstrap to validate conatiner (inside container)
+%test
+    echo "test: could check container setup now (empty)"
+    exit 0
+
+# vim:filetype=sh

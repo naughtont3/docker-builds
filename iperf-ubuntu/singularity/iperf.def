@@ -1,0 +1,8 @@
+BootStrap:docker
+From:naughtont3/iperf-ubuntu:latest
+
+%runscript
+	echo 'runscript: This gets run when you run the image'
+ 
+%post
+	echo 'post: Hello from inside the container'
