@@ -1,9 +1,10 @@
 #!/bin/bash
 
-SINGULARITY=/sw/TJN/bin/singularity
+SINGULARITY=/sw/TJN/quarterlyruns/bin/singularity
+#SINGULARITY=/sw/TJN/bin/singularity
 #SINGULARITY=/sw/TJN/FRESHTEST/bin/singularity
-IMAGE_FILE=iperf-ubuntu-V2.img
-IMAGE_DEF=iperf-ubuntu-V2.def
+IMAGE_FILE=iperf-V2.img
+IMAGE_DEF=iperf-V2.def
 
 die () {
     msg=$1

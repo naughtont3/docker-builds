@@ -14,6 +14,7 @@ From:ubuntu:16.04
     cp ../files/iperf-3.1.3-source.tar.gz   ${HOST_FILES}/
     cp ../files/run-iperf-client.sh         ${HOST_FILES}/
     cp ../files/run-iperf-server.sh         ${HOST_FILES}/
+    cp ../scripts/run-iperf-client-tests.pl ${HOST_FILES}/
     exit 0
 
 
@@ -37,8 +38,18 @@ From:ubuntu:16.04
 
     apt-get -y update \
         && apt-get install -y --no-install-recommends \
-            vim \
+            autoconf \
+            automake \
+            bc \
+            gcc \
+            iputils-ping \
+            libtool \
+            net-tools \
+            m4 \
             make \
+            perl \
+            time \
+            vim \
         && apt-get clean
 
     mkdir -p ${PREFIX}/src/config/
@@ -55,6 +66,7 @@ From:ubuntu:16.04
     cp ${HOST_FILES}/iperf-3.1.3-source.tar.gz   ${PREFIX}/src/tar/
     cp ${HOST_FILES}/run-iperf-client.sh         ${PREFIX}/runs/run-iperf-client.sh
     cp ${HOST_FILES}/run-iperf-server.sh         ${PREFIX}/runs/run-iperf-server.sh
+    cp ${HOST_FILES}/run-iperf-client-tests.pl   ${PREFIX}/runs/run-iperf-client-tests.pl
 
     cd ${PREFIX}/src/tar/ && \
         tar -zxf iperf-3.1.3-source.tar.gz -C ${PREFIX}/src/ && \
