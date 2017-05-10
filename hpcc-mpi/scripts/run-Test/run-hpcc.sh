@@ -1,4 +1,5 @@
 #!/bin/bash 
+# 
 # TJN: REWRITTEN VERSION OF CHARLOTTE KOTAS' RUN SCRIPT
 #      NOTE - CURRENTLY I ASSUME WE HAVE C3 SETUP AND USABLE!.
 #      See also help output: './run-hpcc.sh -H' 
@@ -11,21 +12,39 @@
 #    cd /tmp/tjnhpcc/
 #     #            -h HOSTFILE -r NPROCS -n N     -b NB  -p P -q Q
 #    ./run-hpcc.sh -h hosts4   -r 4      -n 28000 -b 250 -p 1 -q 4
+################################################################
+# NOTES: 
+#  - v1.0: Add version when update for Singularity usage.
+#          In this version, we use 'hpcc' inside "$sing_image",
+#          so should check for existence in "$sing_image" paths.
+#          For now we just add additonal hardcode for Singularity 
+#          path to 'hpcc' (HPCC_SINGULARITY).  This is only required
+#          b/c we use fully-qualified paths, easier if depend on PATH.
+################################################################
 
 # NOTE: We create our 'run' directories under this "TOPDIR"
 TOPDIR=$PWD
 
+SCRIPT='run-hpcc.sh'
+VERSION='v1.0+'
+
+
 #MPIRUN=/usr/bin/mpirun
 MPIRUN=/sw/TJN/quarterlyruns/bin/mpirun
 CEXEC=/sw/usr/bin/cexec
-HPCC=/tmp/hpcc
-#HPCC_BASEDIR=/tmp/tjnhpcc
-#HPCC=$HPCC_BASEDIR/hpcc
-#CEXEC=/usr/bin/cexec
-#HPCC=/benchmarks/src/HPCC/hpcc
+HPCC_BASEDIR=/tmp/tjnhpcc
+HPCC=$HPCC_BASEDIR/hpcc
+HPCC_SINGULARITY=/benchmarks/src/HPCC/hpcc
+#SINGULARITY=/sw/TJN/bin/singularity
+SINGULARITY=/sw/TJN/quarterlyruns/bin/singularity
 
 # Add any OpenMPI MCA params for 'mpirun' cmd-line 
-ompi_mca_params="-mca btl ^openib -mca btl_tcp_if_include eth0.300 -mca oob_tcp_if_include eth0.300 "
+#ompi_mca_params="-mca btl ^openib -mca btl_tcp_if_include eth0.300 -mca oob_tcp_if_include eth0.300 "
+ompi_mca_params=""
+
+# Add any additional options for 'mpirun' cmd-line
+ompi_run_options=" --report-bindings --bind-to hwthread ";
+#ompi_run_options=" --report-bindings --bind-to hwthread -x SINGULARITY_NOSESSIONCLEANUP=1"
 
 DEBUG=0
 
@@ -43,19 +62,23 @@ die () {
 }
 
 usage () {
-    echo "Usage: $0  [OPTIONS] -h HOSTFILE -r nRanks  -n HPCC_N  -b HPCC_NB -p HPCC_P -q HPCC_Q"
+    echo "Usage: $SCRIPT  [OPTIONS] -h HOSTFILE -r nRanks  -n HPCC_N  -b HPCC_NB -p HPCC_P -q HPCC_Q"
     echo "    -h       MPI Hostfile (--hostfile)"
     echo "    -r       MPI Number of ranks (--np)"
     echo "    -n       HPCC 'N' problem size (N)"
     echo "    -b       HPCC 'NB' block size (NB)"
     echo "    -p       HPCC 'P' prcess rows (P)"
     echo "    -q       HPCC 'Q' prcess columns (Q)"
+    echo "    -S       Singularity flag (run with singularity)"
+    echo "    -I       Image for Singularity (requires '-S' too)"
     echo "    -L       (Optional) Label to prefix on rundir name"
     echo "    -H       Print this help info"
+    echo "    -V       Show script version"
     echo "    -D       Enable debug for run script (dry-run)"
     echo "Example:"
     echo "     #         -h HOSTFILE -r NPROCS -n N     -b NB  -p P -q Q"
     echo "   run-hpcc.sh -h hosts4   -r 4      -n 28000 -b 250 -p 1 -q 4"
+    echo "   run-hpcc.sh -h hosts4   -r 4      -n 28000 -b 250 -p 1 -q 4 -S -I /sw/hpcc.img"
 }
 
 ###
@@ -63,10 +86,9 @@ usage () {
 ###
 
 # Die early if missing key items
+[ -d "$TOPDIR"  ] || die "Missing top-dir '$TOPDIR'"
 [ -x "$MPIRUN"  ] || die "Missing executable (mpirun) '$MPIRUN'"
 [ -x "$CEXEC"   ] || die "Missing executable (cexec) '$CEXEC'"
-[ -x "$HPCC"    ] || die "Missing executable (hpcc) '$HPCC'"
-[ -d "$TOPDIR"  ] || die "Missing top-dir '$TOPDIR'"
 
 ####
 # TJN: Quick C3 sanity check
@@ -81,14 +103,17 @@ hpcc_n=
 hpcc_nb=
 hpcc_p=
 hpcc_q=
+sing_image=
+sing_flag=0
 print_help_info=0
+print_version_info=0
 
 #
 # Process ARGV/cmd-line
 #
 OPTIND=1
 #while getopts Hh:r:n:b:p:q: opt ; do
-while getopts HDL:h:r:n:b:p:q: opt ; do
+while getopts VHSI:DL:h:r:n:b:p:q: opt ; do
     case "$opt" in
         h)  mpi_hostfile="$OPTARG";;          # '-h' mpi hostfile
         r)  mpi_nprocs="$OPTARG";;            # '-r' mpi nprocs
@@ -96,9 +121,12 @@ while getopts HDL:h:r:n:b:p:q: opt ; do
         b)  hpcc_nb="$OPTARG";;               # '-b' hpcc 'NB'  value
         p)  hpcc_p="$OPTARG";;                # '-p' hpcc 'P'  value
         q)  hpcc_q="$OPTARG";;                # '-q' hpcc 'Q'  value
-        L)  run_label="$OPTARG";;             # '-L' optional rundir "label" 
-        D)  DEBUG=1;;                         # '-d' enable script debug
-        H)  print_help_info=1;;               # '-h' print help/usage info
+        I)  sing_image="$OPTARG";;            # '-I' singularity image name
+        S)  sing_flag=1;;                     # '-S' singularity flag
+        L)  run_label="$OPTARG";;             # '-L' optional rundir "label"
+        D)  DEBUG=1;;                         # '-D' enable script debug
+        H)  print_help_info=1;;               # '-H' print help/usage info
+        V)  print_version_info=1;;            # '-V' print version info
     esac
 done
 
@@ -107,18 +135,27 @@ if [ "$1" = '--' ]; then
     shift
 fi
 
-[ $DEBUG -ne 0 ] && echo "DBG:    mpi_hostfile=$mpi_hostfile"
-[ $DEBUG -ne 0 ] && echo "DBG:      mpi_nprocs=$mpi_nprocs"
-[ $DEBUG -ne 0 ] && echo "DBG:          hpcc_n=$hpcc_n"
-[ $DEBUG -ne 0 ] && echo "DBG:         hpcc_nb=$hpcc_nb"
-[ $DEBUG -ne 0 ] && echo "DBG:          hpcc_p=$hpcc_p"
-[ $DEBUG -ne 0 ] && echo "DBG:          hpcc_q=$hpcc_q"
-[ $DEBUG -ne 0 ] && echo "DBG:       run_label=$run_label"
-[ $DEBUG -ne 0 ] && echo "DBG: print_help_info=$print_help_info"
+[ $DEBUG -ne 0 ] && echo "DBG:       mpi_hostfile=$mpi_hostfile"
+[ $DEBUG -ne 0 ] && echo "DBG:         mpi_nprocs=$mpi_nprocs"
+[ $DEBUG -ne 0 ] && echo "DBG:             hpcc_n=$hpcc_n"
+[ $DEBUG -ne 0 ] && echo "DBG:            hpcc_nb=$hpcc_nb"
+[ $DEBUG -ne 0 ] && echo "DBG:             hpcc_p=$hpcc_p"
+[ $DEBUG -ne 0 ] && echo "DBG:             hpcc_q=$hpcc_q"
+[ $DEBUG -ne 0 ] && echo "DBG:          run_label=$run_label"
+[ $DEBUG -ne 0 ] && echo "DBG:         sing_image=$sing_image"
+[ $DEBUG -ne 0 ] && echo "DBG:          sing_flag=$sing_flag"
+[ $DEBUG -ne 0 ] && echo "DBG: print_version_info=$print_version_info"
+[ $DEBUG -ne 0 ] && echo "DBG:    print_help_info=$print_help_info"
 
 if [ $print_help_info == 1 ] ; then 
     #echo "DBG: SHOW HELP"
     usage 
+    exit 0
+fi
+
+if [ $print_version_info == 1 ] ; then 
+    #echo "DBG: SHOW VERSION"
+    echo "$SCRIPT $VERSION"
     exit 0
 fi
 
@@ -186,8 +223,23 @@ if ! [[ "$hpcc_q" =~ ^[0-9]+$ ]] ; then
     bad_args=1
 fi
 
+if [ $sing_flag == 1 ] ; then
+
+    if [ "x$sing_image" == "x" ] ; then
+        echo "Error: missing required '-I' option with Singularity (-S)"
+        bad_args=1
+    else 
+        if ! [[ -f "$sing_image" ]] ; then
+            echo "Error: missing Singularity image '$sing_image'"
+            bad_args=1
+        fi
+    fi
+
+fi
+
 if [ $bad_args -ne 0 ]; then 
-    echo "DBG: BAD ARGS"
+    #echo "DBG: BAD ARGS"
+    echo ""
     usage
     exit 1
 fi
@@ -200,17 +252,37 @@ if [ $tmp_nprocs != $mpi_nprocs ] ; then
     exit 1
 fi
 
+# Sanity check (if selected to use Singularity)
+if [ $sing_flag == 1 ] ; then
+    # Use Singularity 
+    [ -x "$SINGULARITY"  ] || die "Missing executable (singularity) '$SINGULARITY'"
+fi
+
+if [ $sing_flag == 1 ] ; then
+    # Use Singularity
+    $SINGULARITY exec $sing_image ls $HPCC_SINGULARITY >& /dev/null
+    [ $? == 0 ] || die "Missing executable (hpcc) [$sing_image] '$HPCC_SINGULARITY'"
+else    
+    # Normal (non-singularity)
+    [ -x "$HPCC"    ] || die "Missing executable (hpcc) '$HPCC'"
+fi
+
 ###############################################
 # END OF ARG PARSING 
 ###############################################
 
-echo "Using   mpirun: '$MPIRUN'"
 echo "Using  top-dir: '$TOPDIR'"
+echo "Using   mpirun: '$MPIRUN'"
+[ $sing_flag == 1 ] && echo "Using   singularity: '$SINGULARITY'"
 
 # The MPIRUN command-line
-#command="time -p $MPIRUN -np $mpi_nprocs --hostfile $mpi_hostfile $ompi_mca_params $HPCC"
-#command="time -p $MPIRUN --report-bindings --bind-to core -np $mpi_nprocs --hostfile $mpi_hostfile $ompi_mca_params $HPCC"
-command="time -p $MPIRUN --report-bindings --bind-to hwthread -np $mpi_nprocs --hostfile $mpi_hostfile $ompi_mca_params $HPCC"
+if [ $sing_flag == 1 ] ; then 
+     # Using Singularity
+    command="time -p $MPIRUN $ompi_run_options $ompi_mca_params -np $mpi_nprocs --hostfile $mpi_hostfile $SINGULARITY exec $sing_image $HPCC_SINGULARITY"
+else
+    # Normal (non-singularity)
+    command="time -p $MPIRUN $ompi_run_options $ompi_mca_params -np $mpi_nprocs --hostfile $mpi_hostfile $HPCC"
+fi
 
 if [ $DEBUG == 1 ] ; then
 
@@ -274,13 +346,22 @@ EOF
     #      and working with a "cluster" like set of nodes.
     ####
     # 1) Above created hpcc inputfile within rundir
-    # 2) Copy 'hpcc' binary to rundir
-    cp $HPCC $RUNDIR
+    # 2) Copy 'hpcc' binary to rundir (if not Singularity)
+    if [ $sing_flag == 1 ] ; then
+        echo "INFO: Singularity - No need to copy 'hpcc' to $RUNDIR"
+    else
+        cp $HPCC $RUNDIR
+    fi
 
     # 3) create rundir on (all) remote nodes
     cexec mkdir -p $RUNDIR
     # 4) push inputfile and executable to (all) remote nodes
-    cpush $HPCC                $RUNDIR/hpcc
+    if [ $sing_flag == 1 ] ; then
+        echo "INFO: Singularity - No need to cpush 'hpcc' to $RUNDIR"
+    else
+        cpush $HPCC                $RUNDIR/hpcc
+    fi
+
     cpush $RUNDIR/hpccinf.txt  $RUNDIR/hpccinf.txt
 
 
