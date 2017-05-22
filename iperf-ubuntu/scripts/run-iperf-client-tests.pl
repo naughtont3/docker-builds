@@ -53,7 +53,7 @@ my $DEBUG = 1;
 
 # List of test options and log-filename
 @LoH1 = (
-        #--UDP--
+        #--TCP--
         {
                 logfile => "/tmp/$DATE_PREFIX-$TEST_LABEL-iperf-client-10G-tcp.log",
                 options => " -A 0 -fg -n 10G ",
@@ -115,12 +115,12 @@ if ($DEBUG) {
     sleep 1;
 }
 
-# # Show interfaces
-# if ( -x $IFCONFIG_BIN ) {
-#     print "# INFO: === Network Interfaces ===\n";
-#     system("$IFCONFIG_BIN -a ");
-#     print "# INFO: ==========================\n";
-# }
+# Show interfaces
+if ( -x $IFCONFIG_BIN ) {
+    print "# INFO: === Network Interfaces ===\n";
+    system("$IFCONFIG_BIN -a ");
+    print "# INFO: ==========================\n";
+}
 
 for my $idx (0..$#LoH1) {
 
