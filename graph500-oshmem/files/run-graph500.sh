@@ -7,11 +7,13 @@ export TMPFILE='/tmp/tmpfile'
 export REUSEFILE=0
 export VERBOSE=1
 
+hostfile=/tmp/myhosts
+
 cd /tmp
 
-#oshrun --verbose -np 2 --mca sshmem mmap ./make-edgelist-shmem -o /tmp/file2 -V -s 14 -e 16 
+#oshrun --allow-run-as-root --mca plm isolated  -np 1 ./mpi/graph500_shmem_one_sided 16
 
-oshrun --allow-run-as-root --mca plm isolated  -np 1 omp-csr
+oshrun --hostfile $hostfile -np 2 --map-by node --bind-to core --report-bindings ./mpi/graph500_shmem_one_sided 16
 rc=$?
 
 #if [ -f hpccoutf.txt ] ; then

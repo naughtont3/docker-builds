@@ -27,6 +27,7 @@
 ###########################################################################
 #
 # NOTES:
+# - 24may2017: Revisions to fix build problems and bump to OMPI v2.1.1
 # - 19may2017: Initial creation based on running container template,
 #    using public 'graph500_openshmem' repo from Ed D'Azevedo.
 #    (https://code.ornl.gov/e6d/graph500_openshmem)
@@ -57,10 +58,19 @@ ADD files/run-graph500.sh ${PREFIX}/runs/run-graph500.sh
 ADD files/make.inc        ${PREFIX}/src/config/make.inc
 ADD files/graph500_openshmem-master_mpi_Makefile.diff ${PREFIX}/src/config/graph500_openshmem-master_mpi_Makefile.diff 
 
+###
+# XXX: Using 'COPY' command to add tarbal.
+#      NOTE The Docker 'ADD' command will automagically extract tarballs!
+#      e.g., adding 'NPB3.3.1.tar.gz' to "$prefix/src" 
+#      creates "$prefix/src/NPB3.3.1/"
+#      Ah-Ha!  Docker 'COPY' does *not* do all the magic of 'ADD'!
+#
 # XXX: TJN - need to avoid adding this directly to repo.
 #      For now I keep entry in Dockerfile, but not add 
 #      the actual tarball to Git.
-ADD files/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 ${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2
+###
+COPY files/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 ${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2
+COPY files/graph500-2.1.4.tar.bz2 ${PREFIX}/src/tar/graph500-2.1.4.tar.bz2
 
 #ENV container docker
 
@@ -90,6 +100,7 @@ RUN apt-get -y update \
         autoconf \
         automake \
 		bc \
+		bzip2 \
         g++ \
         gcc \
         gfortran \
@@ -127,14 +138,16 @@ RUN apt-get -y update \
 #         --disable-vt && \
 #    make -j ${NPROCS} LDFLAGS=-all-static && \
 ###
-RUN export OMPI_VERSION=2.0.1 && \
-    export OMPI_URL=https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-${OMPI_VERSION}.tar.bz2 && \
+RUN export OMPI_VERSION=2.1.1 && \
+    export OMPI_URL=http://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-${OMPI_VERSION}.tar.bz2 && \
     export OMPI_ARCHIVE=${PREFIX}/src/openmpi-${OMPI_VERSION}.tar.bz2 && \
     export OMPI_SOURCE_DIR=${PREFIX}/src/openmpi-${OMPI_VERSION} && \
     export OMPI_INSTALL_DIR=/usr/local && \
     mkdir -p ${OMPI_SOURCE_DIR} && \
     mkdir -p ${OMPI_INSTALL_DIR} && \
+    echo "DBG: wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE}" && \
     wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE} && \
+    ls -lh ${OMPI_ARCHIVE} && \
     tar -jxf ${OMPI_ARCHIVE} -C ${OMPI_SOURCE_DIR} --strip-components=1 && \
     cd ${OMPI_SOURCE_DIR} && \
     ./configure \
@@ -171,7 +184,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 RUN cd ${PREFIX}/src/ && \
     export G500_ARCHIVE=${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 && \
     export G500_SOURCE_DIR=${PREFIX}/src/graph500-oshmem && \
-    mkdir -p ${G00_SOURCE_DIR} && \
+    mkdir -p ${G500_SOURCE_DIR} && \
     tar -jxf ${G500_ARCHIVE} -C ${G500_SOURCE_DIR} --strip-components=1 && \
     cp ${PREFIX}/src/config/make.inc ${G500_SOURCE_DIR}/make.inc && \
     cd ${PREFIX}/src/graph500-oshmem && \
@@ -186,8 +199,22 @@ RUN cd ${PREFIX}/src/ && \
 # Build Graph500
 RUN cd ${PREFIX}/src/graph500-oshmem && \
     make make-edgelist && \
-    make CC=oshcc make-edgelist-shmem && \
-    make install
+    make CC=oshcc OSHCC=oshcc MPICC=mpicc make-edgelist-shmem && \
+    make OSHCC=oshcc MPICC=mpicc 
+
+#---
+# ALSO INSTALL THE Graph500.org version (stable) that does *not* include
+# the OpenSHMEM port of the benchmark.
+RUN cd ${PREFIX}/src/ && \
+    export G500_ORG_ARCHIVE=${PREFIX}/src/tar/graph500-2.1.4.tar.bz2 && \
+    export G500_ORG_SOURCE_DIR=${PREFIX}/src/graph500-2.1.4 && \
+    mkdir -p ${G500_ORG_SOURCE_DIR} && \
+    tar -jxf ${G500_ORG_ARCHIVE} -C ${G500_ORG_SOURCE_DIR} --strip-components=1 && \
+    cp ${PREFIX}/src/config/make.inc ${G500_ORG_SOURCE_DIR}/make.inc && \
+    cd ${G500_ORG_SOURCE_DIR} && \
+    make -j ${NPROCS}
+#---
+
 
 # TODO: Use a non-root user
 
