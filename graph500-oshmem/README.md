@@ -14,6 +14,26 @@ implementation of OpenSHMEM.
  - NOTE: Currently using 'naughtont3' for DockerHUB but account,
          but ultimately this should be changed.
 
+ - NOTE: Open MPI "vader" BTL with CMA uses `process_vm_readv()`,
+         for CMA (cross memory [process] access), which appears to be
+         enabled by default starting in ompi >2.0.1 (i think).
+         This is used in the OMPI code that implements `MPI_Get()`, which
+         we hit in the OSHMEM code paths.
+
+         So we must have `CAP_SYS_PTRACE` in the Docker container to 
+         perform this operation.  In container startup command we could 
+         pass `--privileged` but that gives us a lot, so a better approach 
+         is to pass just the capability we need for ptrace (`CAP_SYS_PTRACE`):
+
+         ```
+            docker run --cap-add SYS_PTRACE -ti --rm naughtont3/graph500-oshmem bash
+         ```
+
+         We may also require ptrace_scope settings for ptrace of non-children 
+         processes, but I ended up not needing it once I fixed the 
+         `CAP_SYS_PTRACE` issue.  However, this could be because I run as 
+         root in the container.  (`cat /proc/sys/kernel/yama/ptrace_scope`)
+
 
 Running Graph500 Demo
 ---------------------
