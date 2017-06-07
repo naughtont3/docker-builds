@@ -2,7 +2,7 @@
 
 username=naughtont3
 imagename=graph500-oshmem
-imagetag=latest
+imagetag=16.04
 
 # Skip final "docker push" 1=skip, 0=push
 #skip_push=0
