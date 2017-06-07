@@ -1,0 +1,124 @@
+BootStrap:docker
+From:ubuntu:17.04
+
+# setup: run on host (outside container) during bootstrap
+%setup
+    echo 'setup: Shell code that runs on host outside the container'
+    echo "setup: Dir '$SINGULARITY_ROOTFS'"
+    ls $SINGULARITY_ROOTFS
+    export HOST_FILES=$SINGULARITY_ROOTFS/host_files
+    mkdir -p ${HOST_FILES}
+    ls ${HOST_FILES}
+    # Copy host files into container space
+    # NOTE: We just copy files directly from parent Docker build dir!
+    cp ../files/run-graph500.sh         ${HOST_FILES}/
+    cp ../files/make.inc                ${HOST_FILES}/
+    cp ../files/graph500_openshmem-master_mpi_Makefile.diff ${HOST_FILES}/
+    cp ../files/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 ${HOST_FILES}/
+    cp ../files/graph500-2.1.4.tar.bz2  ${HOST_FILES}/
+    exit 0
+
+
+# runscript: Not run during bootstrap, creates /singularity runscript 
+#    as default run action (inside container).
+%runscript
+	echo 'runscript: This gets run when you run the image'
+    exit 0
+
+
+# post: Run once during bootstrap (inside container)
+%post
+	echo 'post: Hello from inside the container'
+	export NPROCS=4
+    export PREFIX=/benchmarks
+    export HOST_FILES=/host_files
+    ls ${HOST_FILES}
+    # Just append these to end (instead of awk/sed'ing existing commented lines)
+    echo "deb http://archive.ubuntu.com/ubuntu/ zesty universe" >> /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ zesty-updates universe" >> /etc/apt/sources.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ zesty-security universe" >> /etc/apt/sources.list
+
+    apt-get -y update \
+        && apt-get install -y --no-install-recommends \
+			autoconf \
+			automake \
+			bc \
+			bzip2 \
+			g++ \
+			gcc \
+			gfortran \
+			git \
+			iputils-ping \
+			libtool \
+			lsb-release \
+			net-tools \
+			m4 \
+			make \
+			patch \
+			perl \
+			time \
+			vim \
+			wget \
+			zlib1g-dev \
+        && apt-get clean
+
+    apt-get -y update \
+        && apt-get install -y --no-install-recommends \
+			libopenmpi-dev \
+			openmpi-bin \
+			openmpi-common \
+        && apt-get clean
+
+    mkdir -p ${PREFIX}/src
+    mkdir -p ${PREFIX}/src/config/
+    mkdir -p ${PREFIX}/src/tar/
+    mkdir -p ${PREFIX}/runs/
+    mkdir -p ${PREFIX}/runs/Test1
+
+    ####
+    # We should have bind mounted in the '/src' directory
+    # Example:
+    #    cd docker-builds/hpcc-mpi/
+    #    ls files/
+    #    sudo singularity exec -B files:/src -w MY.img /src/sing-setup.sh
+    ####
+	cp ${HOST_FILES}/run-graph500.sh ${PREFIX}/runs/run-graph500.sh
+	cp ${HOST_FILES}/make.inc        ${PREFIX}/src/config/make.inc
+	cp ${HOST_FILES}/graph500_openshmem-master_mpi_Makefile.diff ${PREFIX}/src/config/graph500_openshmem-master_mpi_Makefile.diff
+	cp ${HOST_FILES}/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 ${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2
+	cp ${HOST_FILES}/graph500-2.1.4.tar.bz2 ${PREFIX}/src/tar/graph500-2.1.4.tar.bz2
+
+	# Build Graph500 (oshmem)
+	cd ${PREFIX}/src/ && \
+		export G500_ARCHIVE=${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 && \
+		export G500_SOURCE_DIR=${PREFIX}/src/graph500-oshmem && \
+		mkdir -p ${G500_SOURCE_DIR} && \
+		tar -jxf ${G500_ARCHIVE} -C ${G500_SOURCE_DIR} --strip-components=1 && \
+		cp ${PREFIX}/src/config/make.inc ${G500_SOURCE_DIR}/make.inc && \
+		cd ${PREFIX}/src/graph500-oshmem && \
+		patch -p 1 < ${PREFIX}/src/config/graph500_openshmem-master_mpi_Makefile.diff && \
+		cd ${PREFIX}/src/graph500-oshmem && \
+		make make-edgelist && \
+		make CC=oshcc OSHCC=oshcc MPICC=mpicc make-edgelist-shmem && \
+		make OSHCC=oshcc MPICC=mpicc
+
+	# Build the Graph500.org version (stable) that does 
+	# *not* include the OpenSHMEM port of the benchmark.
+	cd ${PREFIX}/src/ && \
+		export G500_ORG_ARCHIVE=${PREFIX}/src/tar/graph500-2.1.4.tar.bz2 && \
+		export G500_ORG_SOURCE_DIR=${PREFIX}/src/graph500-2.1.4 && \
+		mkdir -p ${G500_ORG_SOURCE_DIR} && \
+		tar -jxf ${G500_ORG_ARCHIVE} -C ${G500_ORG_SOURCE_DIR} --strip-components=1 && \
+		cp ${PREFIX}/src/config/make.inc ${G500_ORG_SOURCE_DIR}/make.inc && \
+		cd ${G500_ORG_SOURCE_DIR} && \
+		make -j ${NPROCS}
+
+    exit 0
+
+
+# test: Run at end of bootstrap to validate conatiner (inside container)
+%test
+    echo "test: could check container setup now (empty)"
+    exit 0
+
+# vim:filetype=sh
