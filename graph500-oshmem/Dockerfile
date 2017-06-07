@@ -178,7 +178,23 @@ RUN apt-get -y update \
 #### to include our OpenMPI from src build.
 #### Now ready for project/demo source checkouts and symlinks, etc.
 
+###
+# TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
+RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
+    && su -c "echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" mpiuser  \
+    && su -c "echo 'export PATH=/usr/lib64/openmpi/bin/:\$PATH' >> ~/.bashrc" mpiuser \
+    && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" mpiuser \
+    && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" mpiuser \
+    && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
+     ; su -c "echo -n '* ' > ~/.ssh/known_hosts \
+    && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
+###
 
+# Chown all the src code to 'mpiuser'
+RUN chown -R mpiuser ${PREFIX}/
+
+# Default to non-root user ('mpiuser')
+USER mpiuser
 
 # 1) Checkout Ed's oshmem version of Graph500 into "${PREFIX}/src"
 #    (which will result in: /usr/local/src/graph500-shmem)
