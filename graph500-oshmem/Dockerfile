@@ -27,6 +27,8 @@
 ###########################################################################
 #
 # NOTES:
+# - 06jun2017: Revised to use Ubuntu:17.04 and included binary openmpi pkgs,
+#    which have OSHMEM enabled in the build 
 # - 24may2017: Revisions to fix build problems and bump to OMPI v2.1.1
 # - 19may2017: Initial creation based on running container template,
 #    using public 'graph500_openshmem' repo from Ed D'Azevedo.
@@ -34,7 +36,7 @@
 #
 ###########################################################################
 
-FROM ubuntu:16.04
+FROM ubuntu:17.04
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
 # Build-arg: NPROCS for parallel make
@@ -107,6 +109,7 @@ RUN apt-get -y update \
         git \
         iputils-ping \
         libtool \
+        lsb-release \
         net-tools \
         m4 \
         make \
@@ -118,49 +121,57 @@ RUN apt-get -y update \
         zlib1g-dev \
     && apt-get clean
 
+# Install OpenMPI
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends \
+        libopenmpi-dev \
+        openmpi-bin \
+        openmpi-common \
+    && apt-get clean
 
-#
-# *) Build/Install OpenMPI 
-#    (which will result in: /usr/local/{bin,lib,...}/)
-#
-#  NOTE: Use '--strip-components=1' to avoid tarball dirname in dest dir,
-#        e.g., no "openmpi-1.10.2/" in dest dir, just contents into dest dir.
-#        (Instead we control source code dir name explicitly, in case we
-#        want something different in the src dirname.)
-#
-###
-# OLDER-STUFF...
-#    LDFLAGS=-static ./configure --prefix=${OMPI_INSTALL_DIR} \
-#         --disable-shared \
-#         --enable-static \
-#         --disable-dlopen \
-#         --without-memory-manager \
-#         --disable-vt && \
-#    make -j ${NPROCS} LDFLAGS=-all-static && \
-###
-RUN export OMPI_VERSION=2.1.1 && \
-    export OMPI_URL=http://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-${OMPI_VERSION}.tar.bz2 && \
-    export OMPI_ARCHIVE=${PREFIX}/src/openmpi-${OMPI_VERSION}.tar.bz2 && \
-    export OMPI_SOURCE_DIR=${PREFIX}/src/openmpi-${OMPI_VERSION} && \
-    export OMPI_INSTALL_DIR=/usr/local && \
-    mkdir -p ${OMPI_SOURCE_DIR} && \
-    mkdir -p ${OMPI_INSTALL_DIR} && \
-    echo "DBG: wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE}" && \
-    wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE} && \
-    ls -lh ${OMPI_ARCHIVE} && \
-    tar -jxf ${OMPI_ARCHIVE} -C ${OMPI_SOURCE_DIR} --strip-components=1 && \
-    cd ${OMPI_SOURCE_DIR} && \
-    ./configure \
-        --enable-oshmem \
-        --prefix=${OMPI_INSTALL_DIR} && \
-    make -j ${NPROCS} && \
-    make install && \
-    rm -rf ${OMPI_ARCHIVE}
 
-ENV PATH=/usr/local/bin:$PATH
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-
-# TODO: Should we also remove the OMPI_SOURCE_DIR ?
+# #
+# # *) Build/Install OpenMPI 
+# #    (which will result in: /usr/local/{bin,lib,...}/)
+# #
+# #  NOTE: Use '--strip-components=1' to avoid tarball dirname in dest dir,
+# #        e.g., no "openmpi-1.10.2/" in dest dir, just contents into dest dir.
+# #        (Instead we control source code dir name explicitly, in case we
+# #        want something different in the src dirname.)
+# #
+# ###
+# # OLDER-STUFF...
+# #    LDFLAGS=-static ./configure --prefix=${OMPI_INSTALL_DIR} \
+# #         --disable-shared \
+# #         --enable-static \
+# #         --disable-dlopen \
+# #         --without-memory-manager \
+# #         --disable-vt && \
+# #    make -j ${NPROCS} LDFLAGS=-all-static && \
+# ###
+# RUN export OMPI_VERSION=2.1.1 && \
+#     export OMPI_URL=http://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-${OMPI_VERSION}.tar.bz2 && \
+#     export OMPI_ARCHIVE=${PREFIX}/src/openmpi-${OMPI_VERSION}.tar.bz2 && \
+#     export OMPI_SOURCE_DIR=${PREFIX}/src/openmpi-${OMPI_VERSION} && \
+#     export OMPI_INSTALL_DIR=/usr/local && \
+#     mkdir -p ${OMPI_SOURCE_DIR} && \
+#     mkdir -p ${OMPI_INSTALL_DIR} && \
+#     echo "DBG: wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE}" && \
+#     wget --quiet ${OMPI_URL} --output-document=${OMPI_ARCHIVE} && \
+#     ls -lh ${OMPI_ARCHIVE} && \
+#     tar -jxf ${OMPI_ARCHIVE} -C ${OMPI_SOURCE_DIR} --strip-components=1 && \
+#     cd ${OMPI_SOURCE_DIR} && \
+#     ./configure \
+#         --enable-oshmem \
+#         --prefix=${OMPI_INSTALL_DIR} && \
+#     make -j ${NPROCS} && \
+#     make install && \
+#     rm -rf ${OMPI_ARCHIVE}
+# 
+# ENV PATH=/usr/local/bin:$PATH
+# ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+# 
+# # TODO: Should we also remove the OMPI_SOURCE_DIR ?
 
 
 #### Done with base setup and install of pre-reqs,
@@ -181,6 +192,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 #
 # # N.1) Patch to fix pathing for MPI build in Graph500 code 
 # 
+# Build Graph500 (oshmem)
 RUN cd ${PREFIX}/src/ && \
     export G500_ARCHIVE=${PREFIX}/src/tar/graph500_openshmem-master-02f51b620873997c9160f0eae1fc961c0188d2d7.tar.bz2 && \
     export G500_SOURCE_DIR=${PREFIX}/src/graph500-oshmem && \
@@ -188,23 +200,21 @@ RUN cd ${PREFIX}/src/ && \
     tar -jxf ${G500_ARCHIVE} -C ${G500_SOURCE_DIR} --strip-components=1 && \
     cp ${PREFIX}/src/config/make.inc ${G500_SOURCE_DIR}/make.inc && \
     cd ${PREFIX}/src/graph500-oshmem && \
-    patch -p 1 < ${PREFIX}/src/config/graph500_openshmem-master_mpi_Makefile.diff 
+    patch -p 1 < ${PREFIX}/src/config/graph500_openshmem-master_mpi_Makefile.diff && \ 
+    cd ${PREFIX}/src/graph500-oshmem && \
+    make make-edgelist && \
+    make CC=oshcc OSHCC=oshcc MPICC=mpicc make-edgelist-shmem && \
+    make OSHCC=oshcc MPICC=mpicc 
 
 
 #### Done getting all the source code/patching. 
 #### Now need kick off the configure(s) and build(s)!
 #### Note, we'll build at end to ensure we build all in proper order.
 
-# TODO: Merge this RUN command with above download/extract RUN command
-# Build Graph500
-RUN cd ${PREFIX}/src/graph500-oshmem && \
-    make make-edgelist && \
-    make CC=oshcc OSHCC=oshcc MPICC=mpicc make-edgelist-shmem && \
-    make OSHCC=oshcc MPICC=mpicc 
 
 #---
-# ALSO INSTALL THE Graph500.org version (stable) that does *not* include
-# the OpenSHMEM port of the benchmark.
+# Build the Graph500.org version (stable) that does 
+# *not* include the OpenSHMEM port of the benchmark.
 RUN cd ${PREFIX}/src/ && \
     export G500_ORG_ARCHIVE=${PREFIX}/src/tar/graph500-2.1.4.tar.bz2 && \
     export G500_ORG_SOURCE_DIR=${PREFIX}/src/graph500-2.1.4 && \
