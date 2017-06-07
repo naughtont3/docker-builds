@@ -32,6 +32,7 @@ From:ubuntu:17.04
 	export NPROCS=4
     export PREFIX=/benchmarks
     export HOST_FILES=/host_files
+    export MY_USER=${USER:-3t4}
     ls ${HOST_FILES}
     # Just append these to end (instead of awk/sed'ing existing commented lines)
     echo "deb http://archive.ubuntu.com/ubuntu/ zesty universe" >> /etc/apt/sources.list
@@ -112,6 +113,13 @@ From:ubuntu:17.04
 		cp ${PREFIX}/src/config/make.inc ${G500_ORG_SOURCE_DIR}/make.inc && \
 		cd ${G500_ORG_SOURCE_DIR} && \
 		make -j ${NPROCS}
+
+    if [ "x$MY_USER" == "x" ] ; then
+        echo "WARNING: USER info not being conveyed for chown for container files"
+    else
+        chown -R $MY_USER ${PREFIX}/
+    fi
+
 
     exit 0
 

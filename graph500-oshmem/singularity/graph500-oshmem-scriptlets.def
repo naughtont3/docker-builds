@@ -27,6 +27,7 @@ From:ubuntu:17.04
     export NPROCS=4
     export PREFIX=/benchmarks
     export HOST_FILES=/host_files
+    export MY_USER=${USER:-3t4}
     mkdir -p ${PREFIX}
     cp ${HOST_FILES}/scriptlet-post.sh .
     ./scriptlet-post.sh

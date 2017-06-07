@@ -88,4 +88,10 @@ cd ${PREFIX}/src/ && \
     cd ${G500_ORG_SOURCE_DIR} && \
     make -j ${NPROCS} || exit 1
 
+if [ "x$MY_USER" == "x" ] ; then
+    echo "WARNING: USER info not being conveyed for chown for container files"
+else
+    chown -R $MY_USER ${PREFIX}/
+fi
+
 
