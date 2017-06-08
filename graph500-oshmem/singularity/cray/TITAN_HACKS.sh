@@ -15,3 +15,11 @@ mkdir -p /lustre/atlas1
 mkdir -p /lustre/atlas2
 
 mkdir -p /ccs/home/${MY_TITAN_USERNAME}
+
+# HACK: add 'munge' libs for pieces we need on Cray
+apt-get -y update \
+    && apt-get install -y --no-install-recommends \
+        libmunge2  \
+        munge \
+    && apt-get clean
+

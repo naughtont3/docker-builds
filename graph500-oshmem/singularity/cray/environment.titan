@@ -7,24 +7,38 @@ if test -z "$SINGULARITY_INIT"; then
     export PATH PS1 SINGULARITY_INIT
 fi
 
-# TJN: Local hardcodes for use with Titan, etc.
-if test -n "$CRAY_LD_LIBRARY_PATH"; then
+# TJN: Add a hack to skip stuff so we can avoid using any cray (for testing)
+if test -z "$TJN_SKIP_HACK"; then
 
-    #export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/local/cuda/bin
-    export PATH=$PATH:/usr/local/cuda/bin
+    # TJN: Local hardcodes for use with Titan, etc.
+    if test -n "$CRAY_LD_LIBRARY_PATH"; then
 
-    # Add Cray specific library paths
-    export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:/opt/cray/sysutils/1.0-1.0502.60492.1.1.gem}/lib64:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64:/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:/usr/local/cuda/lib64
-    
+        #export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/local/cuda/bin
+        export PATH=$PATH:/usr/local/cuda/bin
+
+        # Add Cray specific library paths
+        export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:/opt/cray/sysutils/1.0-1.0502.60492.1.1.gem}/lib64:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64:/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:/usr/local/cuda/lib64
+        
+    fi
+else
+    echo "DBG: TJN_SKIP_HACK - SKIP 'CRAY_LD_LIBRARY_PATH' SETUP"
 fi
 
-if test -n "$CRAY_OMPI_LD_LIBRARY_PATH"; then
 
-    # Add OpenMPI/2.0.2 libraries
-    export LD_LIBRARY_PATH=${CRAY_OMPI_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 
-    # Apparently these are needed on Titan
-    OMPI_MCA_mpi_leave_pinned=0
-    OMPI_MCA_mpi_leave_pinned_pipeline=0
+# TJN: Add a hack to skip stuff so we can avoid using any cray (for testing)
+if test -z "$TJN_SKIP_HACK"; then
 
+    if test -n "$CRAY_OMPI_LD_LIBRARY_PATH"; then
+
+        # Add OpenMPI/2.0.2 libraries
+        export LD_LIBRARY_PATH=${CRAY_OMPI_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+
+        # Apparently these are needed on Titan
+        OMPI_MCA_mpi_leave_pinned=0
+        OMPI_MCA_mpi_leave_pinned_pipeline=0
+
+    fi
+else
+    echo "DBG: TJN_SKIP_HACK - SKIP 'CRAY_OMPI_LD_LIBRARY_PATH' SETUP"
 fi
