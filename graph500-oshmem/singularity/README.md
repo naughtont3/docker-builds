@@ -74,7 +74,12 @@ Setup-Method: Import from Singularity-Hub
 
  - TODO: Add this example
 
-
+Cray Edits
+----------
+ - For Cray machines, we have a few manual edits
+    1. Create some expected paths in the container, see `cray/TITAN_HACKS.sh`
+    2. Update the `/environment` file in container, see `cray/environment.titan`
+       (which will likely not be needed in Singularity-2.3)
 
 Misc
 ----
