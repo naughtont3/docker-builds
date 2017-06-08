@@ -8,7 +8,7 @@ if test -z "$SINGULARITY_INIT"; then
 fi
 
 # TJN: Local hardcodes for use with Titan, etc.
-if test -z "$CRAY_LD_LIBRARY_PATH"; then
+if test -n "$CRAY_LD_LIBRARY_PATH"; then
 
     #export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/local/cuda/bin
     export PATH=$PATH:/usr/local/cuda/bin
@@ -18,7 +18,7 @@ if test -z "$CRAY_LD_LIBRARY_PATH"; then
     
 fi
 
-if test -z "$CRAY_OMPI_LD_LIBRARY_PATH"; then
+if test -n "$CRAY_OMPI_LD_LIBRARY_PATH"; then
 
     # Add OpenMPI/2.0.2 libraries
     export LD_LIBRARY_PATH=${CRAY_OMPI_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
