@@ -17,12 +17,12 @@ SUDO=sudo
 #build_mode=import
 build_mode=bootstrap
 
-IMAGE_FILE=graph500-oshmem.img
-#IMAGE_DEF=graph500-oshmem.def
+IMAGE_FILE=omb-oshmem.img
+#IMAGE_DEF=omb-oshmem.def
 # XXX: Having to break up sections into scriptlets to avoid ARGMAX :-(
-IMAGE_DEF=graph500-oshmem-scriptlets.def
-#IMAGE_NAME=docker://naughtont3/graph500-oshmem:17.04
-IMAGE_NAME=file://./graph500-oshmem-17.04.docker-export.tar
+IMAGE_DEF=omb-oshmem-scriptlets.def
+#IMAGE_NAME=docker://naughtont3/omb-oshmem:latest
+IMAGE_NAME=file://./omb-oshmem-latest.docker-export.tar
 
 die () {
     msg=$1
