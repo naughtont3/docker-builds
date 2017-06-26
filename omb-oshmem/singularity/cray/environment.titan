@@ -1,0 +1,44 @@
+# Define any environment init code here
+
+if test -z "$SINGULARITY_INIT"; then
+    PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+    PS1="Singularity.$SINGULARITY_CONTAINER> $PS1"
+    SINGULARITY_INIT=1
+    export PATH PS1 SINGULARITY_INIT
+fi
+
+# TJN: Add a hack to skip stuff so we can avoid using any cray (for testing)
+if test -z "$TJN_SKIP_HACK"; then
+
+    # TJN: Local hardcodes for use with Titan, etc.
+    if test -n "$CRAY_LD_LIBRARY_PATH"; then
+
+        #export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/local/cuda/bin
+        export PATH=$PATH:/usr/local/cuda/bin
+
+        # Add Cray specific library paths
+        export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:/opt/cray/sysutils/1.0-1.0502.60492.1.1.gem}/lib64:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64:/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:/usr/local/cuda/lib64
+        
+    fi
+else
+    echo "DBG: TJN_SKIP_HACK - SKIP 'CRAY_LD_LIBRARY_PATH' SETUP"
+fi
+
+
+
+# TJN: Add a hack to skip stuff so we can avoid using any cray (for testing)
+if test -z "$TJN_SKIP_HACK"; then
+
+    if test -n "$CRAY_OMPI_LD_LIBRARY_PATH"; then
+
+        # Add OpenMPI/2.0.2 libraries
+        export LD_LIBRARY_PATH=${CRAY_OMPI_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+
+        # Apparently these are needed on Titan
+        OMPI_MCA_mpi_leave_pinned=0
+        OMPI_MCA_mpi_leave_pinned_pipeline=0
+
+    fi
+else
+    echo "DBG: TJN_SKIP_HACK - SKIP 'CRAY_OMPI_LD_LIBRARY_PATH' SETUP"
+fi
