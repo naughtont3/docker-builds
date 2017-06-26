@@ -2,7 +2,7 @@
 
 username=naughtont3
 imagename=omb-oshmem
-imagetag=17.04
+imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push
 #skip_push=0

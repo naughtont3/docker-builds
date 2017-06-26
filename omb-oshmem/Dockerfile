@@ -200,7 +200,7 @@ RUN cd ${PREFIX}/src/ && \
     export OMB_SOURCE_DIR=${PREFIX}/src/omb && \
     mkdir -p ${OMB_SOURCE_DIR} && \
     mkdir -p ${PREFIX}/src/omb-install && \
-    tar -jxf ${OMB_ARCHIVE} -C ${OMB_SOURCE_DIR} --strip-components=1 && \
+    tar -zxf ${OMB_ARCHIVE} -C ${OMB_SOURCE_DIR} --strip-components=1 && \
     cd ${PREFIX}/src/omb && \
     ./configure --prefix=${PREFIX}/src/omb-install CC=oshcc && \
     make -C openshmem CC=oshcc  && \
