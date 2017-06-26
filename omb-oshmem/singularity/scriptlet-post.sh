@@ -61,7 +61,7 @@ cp ${HOST_FILES}/osu-micro-benchmarks-5.3.2.tar.gz ${PREFIX}/src/tar/osu-micro-b
 
 
 # Build OSU Micro Benchmark for OpenSHMEM
-RUN cd ${PREFIX}/src/ && \
+cd ${PREFIX}/src/ && \
     export OMB_ARCHIVE=${PREFIX}/src/tar/osu-micro-benchmarks-5.3.2.tar.gz && \
     export OMB_SOURCE_DIR=${PREFIX}/src/omb && \
     mkdir -p ${OMB_SOURCE_DIR} && \
