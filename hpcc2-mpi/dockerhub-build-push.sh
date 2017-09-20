@@ -2,7 +2,7 @@
 
 username=naughtont3
 imagename=hpcc2-mpi
-imagetag=latest
+imagetag=slurm1508
 
 # Skip final "docker push" 1=skip, 0=push
 skip_push=0

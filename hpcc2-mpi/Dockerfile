@@ -105,12 +105,14 @@ RUN apt-get -y update \
     && apt-get clean
 
 # Install OpenMPI and OpenBLAS from Distribution
+# XXX: ADD SLURM-CLIENTS
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
 		openmpi-bin \
 		openmpi-common \
 		libopenmpi-dev \
 		libopenblas-dev \
+        slurm-client \
     && apt-get clean
 
 
