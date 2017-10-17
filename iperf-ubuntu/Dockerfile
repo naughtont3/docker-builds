@@ -42,9 +42,9 @@ RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/runs/Test1"  
 
 # XXX: NOTE The Docker 'ADD' command will automagically extract tarballs!
-#      e.g., adding 'iperf-3.1.3-source.tar.gz' to "$prefix/src" 
-#      creates "$prefix/src/iperf-3.1.3/".
-ADD files/iperf-3.1.3-source.tar.gz  ${PREFIX}/src/
+#      e.g., adding 'iperf-3.1.7-source.tar.gz' to "$prefix/src" 
+#      creates "$prefix/src/iperf-3.1.7/".
+ADD files/iperf-3.1.7-source.tar.gz  ${PREFIX}/src/
 ADD files/run-iperf-client.sh        ${PREFIX}/runs/run-iperf-client.sh
 ADD files/run-iperf-server.sh        ${PREFIX}/runs/run-iperf-server.sh
 
@@ -96,7 +96,7 @@ RUN apt-get -y update \
 
 # 1) Create a symlink of IPERF to "latest" release dir
 RUN cd ${PREFIX}/src/ && \
-    ln -s ${PREFIX}/src/iperf-3.1.3 ${PREFIX}/src/IPERF
+    ln -s ${PREFIX}/src/iperf-3.1.7 ${PREFIX}/src/IPERF
 
 
 #### Done getting all the source code/patching. 

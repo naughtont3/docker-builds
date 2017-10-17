@@ -2,6 +2,7 @@
 
 username=naughtont3
 imagename=iperf-ubuntu
+#imagetag=3.1.7
 imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push
