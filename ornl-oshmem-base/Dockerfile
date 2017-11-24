@@ -80,7 +80,6 @@ RUN apt-get update \
 
 ####
 # TODO:
-#   - linux-headers  (XPMEM)
 #   - libibverbs-dev (verbs.h)
 ####
 # Install various useful/prereq packages
@@ -182,6 +181,20 @@ RUN echo "BUILD OMPI" && \
 ENV OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${OMPI_VERSION}
 ENV OMPI_INSTALL_DIR=${PREFIX}/
 
+
+#####
+# # Build xpmem  (module)
+# # (note: we will keep module seperate and likely load in host
+# #  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
+# #  the container, we'll attempt to build the kernel module.)
+# RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
+#         if [ -d "/lib/modules/$(uname -r)" ] ; then \
+#           echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
+#           cd ${PREFIX}/src/xpmem/mod ; \
+#           make ; \
+#         fi ; \
+#     fi
+#####
 
 ####
 # TJN: If make fails we error out, but we ignore errors from 'make install'

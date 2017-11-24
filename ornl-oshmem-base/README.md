@@ -131,6 +131,120 @@ the private repositories.
     ```mytoken``` in current working directory and will pass that seamlessly.
 
 
+Host XPMEM
+----------
+- We generally will load the XPMEM kernel module in the host, but
+  when building this software stack in a container we will also build
+  XPMEM inside for source/headers/etc.  With proper permissions, we can
+  load the `xpmem.ko` from the container if we choose.
+
+- To build and load kernel module in the host, you will run the following.
+
+    ```
+      # Install kernel headers if not already installed
+    sudo apt-get install linux-headers-$(uname -r)
+    ls -l /usr/src/linux-headers-$(uname -r)
+    ```
+
+    ```
+      # Download and build XPMEM kernel module
+    git clone https://github.com/hjelmn/xpmem.git
+    cd kernel/
+    make
+    ```
+
+    ```
+      # Load xpmem kernel module (from xpmem/mod/ directory)
+    sudo insmod ./xpmem.ko
+    ```
+
+- If you do want to build/load the XPMEM kernel module from a container,
+  you need to follow the steps in 'Kernel Modules in Containers'.
+  ***NOTE***: To ```insmod``` a module within container, you must pass the
+  ```--privileged``` option when starting the Docker container.
+
+
+
+Kernel Modules in Containers
+----------------------------
+- Kernel Source/Headers - kernel headers/source should be
+   installed manually at runtime in container, or (preferably)
+   passed via bind-mounts from the host.
+
+  ***NOTE***: To ```insmod``` a module within container, you must pass
+    the ```--privileged``` option when starting the Docker container.
+    Otherwise, if only building the kernel module in container, you can
+    avoid passing ```privileged``` and only pass bind-mounts.
+
+  - Option-1: Bind-mount kernel headers/source from host into container,
+    (note: we use a "system container" model here)
+
+    ```
+     # Start "system container" (fully privileged!) with Kernel src/modules
+    docker run -ti \
+        --privileged \
+        -v /usr/src:/usr/src \
+        -v /lib/modules:/lib/modules \
+        --name mydemo \
+        naughtont3/ornl-oshmem-base \
+        /bin/sleep infinity
+    ```
+
+    ```
+      # Connect to container and follow normal steps for kernel module build
+      # and use ```insmod```', etc. as expected.
+    docker exec -ti  mydemo bash
+    ```
+
+  - Option-2: Install host kernel headers in container:
+
+    ```
+      # Install kernel headers if not already installed
+    sudo apt-get install linux-headers-$(uname -r)
+    ls -l /usr/src/linux-headers-$(uname -r)
+    ```
+
+
+- Note: The kernel module will persist in host after container exits,
+  so make sure to cleanup/unload any loaded kernel modules.
+
+- Another example: Here is an example I use to have a shared scratch
+  (e.g., source code) between host/guest, share host kernel source/modules,
+  and startup using a "system container" model.  The guest can ```insmod```
+  modules because we pass the ```--privileged``` Docker option.
+  However, since the kernel module is accessible in host or container via
+  shared scratch directory, you can also easily load it in the host.
+
+   ```
+     # Start "system container" (fully privileged!)
+    docker run -d -P --name mydemo \
+            --privileged \
+            -v /home/3t4/docker/docker_share:/data \
+            -v /usr/src:/usr/src \
+            -v /lib/modules:/lib/modules \
+            naughtont3/ornl-oshmem-base \
+            /bin/sleep infinity
+
+     # Connect to "system container"
+    docker exec -ti mydemo bash
+   ```
+
+- Another example: Running a demo container with access to
+  the '/dev/xpmem' device (xpmem assumed to be loaded by host, otherwise
+  need more privileges to 'insmod' in container).
+
+   ```
+     # Start "system container" (with access to /dev/xpmem device)
+    docker run -d -P --name mydemo \
+            --device /dev/xpmem \
+            -v /home/3t4/docker/docker_share:/data \
+            naughtont3/ornl-oshmem-base \
+            /bin/sleep infinity
+
+     # Connect to "system container" (with access to /dev/xpmem device)
+    docker exec -ti mydemo  bash
+   ```
+
 
 NOTES
 -----
