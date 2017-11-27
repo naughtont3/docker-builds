@@ -34,12 +34,12 @@ ARG GITHUB_TOKEN=thetoken
 
 # Set VERSION of software
 # Tarball source
-ENV LIBEVENT_VERSION=2.1.8-stable
-ENV PMIX_VERSION=2.0.2
-ENV OMPI_VERSION=3.0.0
+ENV X_LIBEVENT_VERSION=2.1.8-stable
+ENV X_PMIX_VERSION=2.0.2
+ENV X_OMPI_VERSION=3.0.0
 # Git source
-ENV XPMEM_VERSION=git-br-master
-ENV UCX_VERSION=git-br-master
+ENV X_XPMEM_VERSION=git-br-master
+ENV X_UCX_VERSION=git-br-master
 
 
 # Set PREFIX to a common Hobbes directory
@@ -88,7 +88,6 @@ RUN apt-get -y update \
         autoconf \
         automake \
 		bc \
-        bfd \
         binutils-dev \
         binutils-multiarch-dev \
         bison \
@@ -116,8 +115,8 @@ RUN apt-get -y update \
 
 # Libevent (tar.gz)
 RUN echo "BUILD LIBEVENT" && \
-    export LIBEVENT_ARCHIVE_URL=https://github.com/libevent/libevent/releases/download/release-${LIBEVENT_VERSION}/libevent-${LIBEVENT_VERSION}.tar.gz && \
-    export LIBEVENT_SOURCE_DIR=${PREFIX}/src/libevent-${LIBEVENT_VERSION} && \
+    export LIBEVENT_ARCHIVE_URL=https://github.com/libevent/libevent/releases/download/release-${X_LIBEVENT_VERSION}/libevent-${X_LIBEVENT_VERSION}.tar.gz && \
+    export LIBEVENT_SOURCE_DIR=${PREFIX}/src/libevent-${X_LIBEVENT_VERSION} && \
     export LIBEVENT_INSTALL_DIR=${PREFIX}/ && \
     export LIBEVENT_ARCHIVE_FILE=`echo "${LIBEVENT_ARCHIVE_URL##*/}"` && \
     mkdir -p $LIBEVENT_SOURCE_DIR && \
@@ -131,14 +130,14 @@ RUN echo "BUILD LIBEVENT" && \
     make -j 4 && \
     make install || exit 1
 
-ENV LIBEVENT_SOURCE_DIR=${PREFIX}/src/libevent-${LIBEVENT_VERSION}
+ENV LIBEVENT_SOURCE_DIR=${PREFIX}/src/libevent-${X_LIBEVENT_VERSION}
 ENV LIBEVENT_INSTALL_DIR=${PREFIX}/
 
 
 # PMIX (tar.gz)
 RUN echo "BUILD PMIX" && \
-    export PMIX_ARCHIVE_URL=https://github.com/pmix/pmix/releases/download/v${PMIX_VERSION}/pmix-${PMIX_VERSION}.tar.gz
-    export PMIX_SOURCE_DIR=${PREFIX}/src/pmix-${PMIX_VERSION} && \
+    export PMIX_ARCHIVE_URL=https://github.com/pmix/pmix/releases/download/v${X_PMIX_VERSION}/pmix-${X_PMIX_VERSION}.tar.gz && \
+    export PMIX_SOURCE_DIR=${PREFIX}/src/pmix-${X_PMIX_VERSION} && \
     export PMIX_INSTALL_DIR=${PREFIX}/ && \
     export PMIX_ARCHIVE_FILE=`echo "${PMIX_ARCHIVE_URL##*/}"` && \
     mkdir -p $PMIX_SOURCE_DIR && \
@@ -154,14 +153,14 @@ RUN echo "BUILD PMIX" && \
     make -j 4 && \
     make install || exit 1
 
-ENV PMIX_SOURCE_DIR=${PREFIX}/src/pmix-${PMIX_VERSION}
+ENV PMIX_SOURCE_DIR=${PREFIX}/src/pmix-${X_PMIX_VERSION}
 ENV PMIX_INSTALL_DIR=${PREFIX}/
 
 
 # OpenMPI (ORTE) (tar.gz)
 RUN echo "BUILD OMPI" && \
-    export OMPI_ARCHIVE_URL=https://github.com/open-mpi/ompi/archive/v${OMPI_VERSION}.tar.gz
-    export OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${OMPI_VERSION} && \
+    export OMPI_ARCHIVE_URL=https://github.com/open-mpi/ompi/archive/v${X_OMPI_VERSION}.tar.gz && \
+    export OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${X_OMPI_VERSION} && \
     export OMPI_INSTALL_DIR=${PREFIX}/ && \
     export OMPI_ARCHIVE_FILE=`echo "${OMPI_ARCHIVE_URL##*/}"` && \
     mkdir -p $OMPI_SOURCE_DIR && \
@@ -178,22 +177,22 @@ RUN echo "BUILD OMPI" && \
     make -j 4 && \
     make install || die "OMPI failed"
 
-ENV OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${OMPI_VERSION}
+ENV OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${X_OMPI_VERSION}
 ENV OMPI_INSTALL_DIR=${PREFIX}/
 
 
 #####
-# # Build xpmem  (module)
-# # (note: we will keep module seperate and likely load in host
-# #  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
-# #  the container, we'll attempt to build the kernel module.)
-# RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
-#         if [ -d "/lib/modules/$(uname -r)" ] ; then \
-#           echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
-#           cd ${PREFIX}/src/xpmem/mod ; \
-#           make ; \
-#         fi ; \
-#     fi
+# Build xpmem  (module)
+# (note: we will keep module seperate and likely load in host
+#  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
+#  the container, we'll attempt to build the kernel module.)
+RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
+        if [ -d "/lib/modules/$(uname -r)" ] ; then \
+          echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
+          cd ${PREFIX}/src/xpmem/mod ; \
+          make ; \
+        fi ; \
+    fi
 #####
 
 ####
@@ -206,7 +205,7 @@ ENV OMPI_INSTALL_DIR=${PREFIX}/
 RUN echo "BUILD XPMEM" && \
     export XPMEM_REPO_URL=https://github.com/hjelmn/xpmem && \
     export XPMEM_REPO_BRANCH=master && \
-    export XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XPMEM_VERSION} && \
+    export XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${X_XPMEM_VERSION} && \
     export XPMEM_INSTALL_DIR=${PREFIX}/ && \
     mkdir -p $XPMEM_SOURCE_DIR && \
     cd $XPMEM_SOURCE_DIR && \
@@ -222,7 +221,7 @@ RUN echo "BUILD XPMEM" && \
      || exit 1  \
      && make install || echo "XPMEM make install problem (continue anyway)"
 
-ENV XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XPMEM_VERSION}
+ENV XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${X_XPMEM_VERSION}
 ENV XPMEM_INSTALL_DIR=${PREFIX}
 
 
@@ -232,7 +231,7 @@ ENV XPMEM_INSTALL_DIR=${PREFIX}
 RUN echo "BUILD UCX" && \
     export UCX_REPO_URL=https://github.com/openucx/ucx.git && \
     export UCX_REPO_BRANCH=master && \
-    export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${UCX_VERSION} && \
+    export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${X_UCX_VERSION} && \
     export UCX_INSTALL_DIR=${PREFIX}/ && \
     mkdir -p $UCX_SOURCE_DIR && \
     cd $UCX_SOURCE_DIR && \
@@ -247,7 +246,7 @@ RUN echo "BUILD UCX" && \
     make -j 4 && \
     make install || exit 1
 
-ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${UCX_VERSION}
+ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${X_UCX_VERSION}
 ENV UCX_INSTALL_DIR=${PREFIX}
 
 
