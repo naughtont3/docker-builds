@@ -13,19 +13,9 @@ Base image layer with software dependencies for ORNL-OpenSHMEM.
          from within container to build XPMEM/UCX/OSHMEM.
          (This is primarily due to the XPMEM kernel dependency, so we need
           the linux-headers and module from the target machine, 
-          `/usr/src` and `/lib/modules`.)
+          `/usr/src` and `/lib/modules`.)  
+          See 'Getting Started' below for example commands.
 
-         Example commands:
-
-         ```
-             # Start in daemon mode
-            docker run -d -P --name mydemo \
-                -v /usr/src:/usr/src \
-                -v /lib/modules:/lib/modules \
-                naughtont3/ornl-oshmem-base /bin/sleep infinity
-            docker exec -ti mydemo /bin/bash
-            /usr/local/src/finish_build.sh
-        ```
 
 Getting Started
 ---------------
