@@ -99,6 +99,7 @@ RUN apt-get -y update \
         binutils-multiarch-dev \
         bison \
 		bzip2 \
+        ctags \
         flex \
         g++ \
         gcc \
@@ -106,6 +107,7 @@ RUN apt-get -y update \
         git \
         iputils-ping \
         libelf-dev \
+        libibverbs-dev \
         libnuma-dev \
         libtool \
         lsb-release \
@@ -262,25 +264,29 @@ RUN echo "*******************************************************" \
     && echo "TODO: '/usr/local/src/finish_build.sh' from container" \
     && echo "TODO: Remember to bind mount in kernel header: " \
     && echo "       docker run -ti -v /usr/src:/usr/src ...." \
+    && echo "" \
+    && echo " See also: README.md 'Getting Started'" \
     && echo "*******************************************************" 
 
 
-# # TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
-# RUN useradd -c "MPI User" -m -p 'dabears' -s /bin/bash mpiuser  \
-#     && su -c "echo 'export LD_LIBRARY_PATH=/usr/local/lib64/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" mpiuser  \
-#     && su -c "echo 'export PATH=/usr/local/lib64/openmpi/bin/:\$PATH' >> ~/.bashrc" mpiuser \
-#     && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" mpiuser \
-#     && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" mpiuser \
-#     && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
-#      ; su -c "echo -n '* ' > ~/.ssh/known_hosts \
-#     && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" mpiuser
-# ###
-# #
-# # Chown all the src code to 'mpiuser'
-# RUN chown -R mpiuser ${PREFIX}/
-# #
-# # Default to non-root user ('mpiuser')
-# USER mpiuser
+# TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
+RUN useradd -c "OSHMEM User" -m -p 'dabears' -s /bin/bash oshuser  \
+    && su -c "echo 'export LD_LIBRARY_PATH=/usr/local/lib/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" oshuser  \
+    && su -c "echo 'export PATH=/usr/local/lib/openmpi/bin/:\$PATH' >> ~/.bashrc" oshuser \
+    && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" oshuser \
+    && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" oshuser \
+    && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
+     ; su -c "echo -n '* ' > ~/.ssh/known_hosts \
+    && cat /etc/ssh/ssh_host_ecdsa_key.pub >> ~/.ssh/known_hosts" oshuser
+###
+
+# Chown all the src code to 'oshuser'
+RUN chown -R oshuser ${PREFIX}/
+
+
+# TJN: Keeping default user as root for now
+# Default to non-root user ('oshuser')
+#USER oshuser
 
 
 CMD ["/bin/bash"]

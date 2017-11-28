@@ -12,18 +12,70 @@ Base image layer with software dependencies for ORNL-OpenSHMEM.
  - NOTE: This just builds Libevent/PMIX/OMPI.  Need to run `finish_build.sh`
          from within container to build XPMEM/UCX/OSHMEM.
          (This is primarily due to the XPMEM kernel dependency, so we need
-          the linux-headers from the target machine, `/usr/src/$(uname -r)`.)
+          the linux-headers and module from the target machine, 
+          `/usr/src` and `/lib/modules`.)
 
          Example commands:
 
          ```
              # Start in daemon mode
             docker run -d -P --name mydemo \
-                -v /usr/src:/usr/src naughtont3/ornl-oshmem-base /bin/sleep infinity
+                -v /usr/src:/usr/src \
+                -v /lib/modules:/lib/modules \
+                naughtont3/ornl-oshmem-base /bin/sleep infinity
             docker exec -ti mydemo /bin/bash
             /usr/local/src/finish_build.sh
         ```
 
+Getting Started
+---------------
+
+- Run image (start container) in ''daemon'' mode with bind-mounted host kernel dir:
+
+    ```
+        docker run -d -P  \
+                --name mydemo \
+                -v /usr/src:/usr/src \
+                -v /lib/modules:/lib/modules \
+                naughtont3/ornl-oshmem-base /bin/sleep infinity
+    ```
+
+- Attach to the running container: 
+
+    ```
+        docker exec -ti mydemo /bin/bash
+    ```
+
+- NOTE:  If want fully-automated `finish_build.sh` set `GITHUB_TOKEN` env
+         var or create file with token (`/usr/local/src/mytoken`), *before*
+         running `finish_build.sh`.  
+         Otherwise, will be prompted for Github username/password for 
+         oshmem git checkout.
+         (See 'Personal Access Tokens' below for more details.)
+
+    ```
+		root@ed2ebcb10457:/# vi /usr/local/src/mytoken
+    ```
+
+- Finish setup/build  (xpmem, ucx, oshmem):
+
+    ```
+		root@ed2ebcb10457:/# /usr/local/src/finish_build.sh
+				...			
+            ...<snip>...
+				...			
+		##################################################################
+		  Source dir: /usr/local/src/
+		 Install dir: /usr/local/
+		  Start time: Tue Nov 28 16:10:39 UTC 2017
+		 Finish time: Tue Nov 28 16:13:16 UTC 2017
+		##################################################################
+		root@ed2ebcb10457:/# source /usr/local/src/env_oshmem-develop.sh 
+		root@ed2ebcb10457:/# which orterun
+		/usr/local/bin/orterun
+		root@ed2ebcb10457:/# which oshcc  
+		/usr/local/bin/oshcc
+    ```
 
 Getting Docker
 --------------
