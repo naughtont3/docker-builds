@@ -93,40 +93,40 @@ Getting Docker
 - Run image (start container) in ''daemon'' mode:
 
   ```
- docker run -d -P --name <NAME> naughtont3/ornl-oshmem-base /bin/sleep infinity
+    docker run -d -P --name <NAME> naughtont3/ornl-oshmem-base /bin/sleep infinity
   ```
 
 - Run image (start container) in ''daemon'' mode with bind-mounted host dir:
 
   ```
-  docker run -d -P --name mydemo \
+    docker run -d -P --name mydemo \
            -v /home/data:/data  naughtont3/ornl-oshmem-base /bin/sleep infinity
   ```
 
 - Attach to the running container (assuming name ''mydemo''):
 
   ```
-  docker exec -ti mydemo  /bin/bash
+    docker exec -ti mydemo  /bin/bash
   ```
 
 - (Alternate) Run image (start container) directly (non-daemon mode):
 
   ```
-  docker exec -ti naughtont3/ornl-oshmem-base /bin/bash
+    docker exec -ti naughtont3/ornl-oshmem-base /bin/bash
   ```
 
 - Removing the container (and their volumes to avoid dangling volumes!)
 
   ```
-  docker rm -v mydemo
+    docker rm -v mydemo
   ```
 
 - Build/Upload image:
 
-    ```
+  ```
     docker build -t="naughtont3/ornl-oshmem-base" .
     docker push naughtont3/ornl-oshmem-base
-    ```
+  ```
 
 
 Building 'ornl-oshmem-base' Docker Image
@@ -178,18 +178,18 @@ the private repositories.
 
 - Step-2) Save the token as a file (one line only), e.g., "mytoken"
 
-    ```
+   ```
     vi mytoken
 
     wc -l mytoken
     1 mytoken
-    ```
+   ```
 
 - Step-3) Run Docker build, passing the  ```--build-arg``` (reading token from file):
 
-    ```
+   ```
     docker build --build-arg=GITHUB_TOKEN=$(cat mytoken) -t="naughtont3/ornl-oshmem-base" .
-    ```
+   ```
 
 - ***NOTE*** DO NOT SAVE YOUR TOKEN TO REPOSITORY OR GIVE TO OTHER USERS!
 
@@ -207,7 +207,7 @@ Host XPMEM
 - To build and load kernel module in the host, you will run the following.
 
     ```
-      # Install kernel headers if not already installed
+     # Install kernel headers if not already installed
     sudo apt-get install linux-headers-$(uname -r)
     ls -l /usr/src/linux-headers-$(uname -r)
     ```
@@ -246,8 +246,8 @@ Kernel Modules in Containers
     (note: we use a "system container" model here)
 
     ```
-     # Start "system container" (fully privileged!) with Kernel src/modules
-    docker run -ti \
+       # Start "system container" (fully privileged!) with Kernel src/modules
+     docker run -ti \
         --privileged \
         -v /usr/src:/usr/src \
         -v /lib/modules:/lib/modules \
@@ -257,17 +257,17 @@ Kernel Modules in Containers
     ```
 
     ```
-      # Connect to container and follow normal steps for kernel module build
-      # and use ```insmod```', etc. as expected.
-    docker exec -ti  mydemo bash
+       # Connect to container and follow normal steps for kernel module build
+       # and use ```insmod```', etc. as expected.
+     docker exec -ti  mydemo bash
     ```
 
   - Option-2: Install host kernel headers in container:
 
     ```
-      # Install kernel headers if not already installed
-    sudo apt-get install linux-headers-$(uname -r)
-    ls -l /usr/src/linux-headers-$(uname -r)
+       # Install kernel headers if not already installed
+     sudo apt-get install linux-headers-$(uname -r)
+     ls -l /usr/src/linux-headers-$(uname -r)
     ```
 
 
