@@ -17,6 +17,8 @@
 ###########################################################################
 #
 # NOTES:
+# - 28nov2017: Comment out the XPMEM/UCX pieces due to kernel deps, run via
+#              'finish_build.sh' script instead (from within a container instance).
 # - 23nov2017: Initial creation based on existing container templates.
 #
 ###########################################################################
@@ -51,6 +53,10 @@ RUN mkdir -p "${PREFIX}" \
     && mkdir -p "${PREFIX}/runs" \
     && mkdir -p "${PREFIX}/runs/Test1"
 
+
+ADD files/build_ornloshm-develop.sh   ${PREFIX}/src/
+ADD files/finish_build.sh             ${PREFIX}/src/
+ADD files/env_oshmem-develop.sh       ${PREFIX}/src/
 
 # ###
 # # XXX: Using 'COPY' command to add tarbal.
@@ -87,6 +93,7 @@ RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
         autoconf \
         automake \
+        bash \
 		bc \
         binutils-dev \
         binutils-multiarch-dev \
@@ -180,74 +187,79 @@ RUN echo "BUILD OMPI" && \
 ENV OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${XX_OMPI_VERSION}
 ENV OMPI_INSTALL_DIR=${PREFIX}/
 
-
-#####
-# Build xpmem  (module)
-# (note: we will keep module seperate and likely load in host
-#  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
-#  the container, we'll attempt to build the kernel module.)
-RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
-        if [ -d "/lib/modules/$(uname -r)" ] ; then \
-          echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
-          cd ${PREFIX}/src/xpmem/mod ; \
-          make ; \
-        fi ; \
-    fi
-#####
-
-####
-# TJN: If make fails we error out, but we ignore errors from 'make install'
-#      because that may be because we are not running as root (in some cases).
 # 
-# TODO: MAP IN THE HOST /usr/src/linux-headers-$(uname -r)
-####
-# XPMEM (git)
-RUN echo "BUILD XPMEM" && \
-    export XPMEM_REPO_URL=https://github.com/hjelmn/xpmem && \
-    export XPMEM_REPO_BRANCH=master && \
-    export XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XX_XPMEM_VERSION} && \
-    export XPMEM_INSTALL_DIR=${PREFIX}/ && \
-    mkdir -p $XPMEM_SOURCE_DIR && \
-    cd $XPMEM_SOURCE_DIR && \
-    git clone -b ${XPMEM_REPO_BRANCH} ${XPMEM_REPO_URL} ${XPMEM_SOURCE_DIR} && \
-    cd ${XPMEM_SOURCE_DIR} && \
-    ./autogen.sh && \
-    ./configure \
-        --prefix=${XPMEM_INSTALL_DIR}  \
-        --with-default-prefix=${XPMEM_INSTALL_DIR} \
-        --with-module=/usr/src/linux-headers-$(uname -r) \
-        && \
-    make -j 4 \
-     || exit 1  \
-     && make install || echo "XPMEM make install problem (continue anyway)"
+# #####
+# # Build xpmem  (module)
+# # (note: we will keep module seperate and likely load in host
+# #  for the 'insmod xpmem.ko'.  But if we mapped kernel source into
+# #  the container, we'll attempt to build the kernel module.)
+# RUN if [ -d "/usr/src/linux-headers-$(uname -r)" ] ; then \
+#         if [ -d "/lib/modules/$(uname -r)" ] ; then \
+#           echo "INFO: Kernel src/modules exist, build 'xpmem.ko'!" ; \
+#           cd ${PREFIX}/src/xpmem/mod ; \
+#           make ; \
+#         fi ; \
+#     fi
+# #####
+# 
+# ####
+# # TJN: If make fails we error out, but we ignore errors from 'make install'
+# #      because that may be because we are not running as root (in some cases).
+# # 
+# # TODO: MAP IN THE HOST /usr/src/linux-headers-$(uname -r)
+# ####
+# # XPMEM (git)
+# RUN echo "BUILD XPMEM" && \
+#     export XPMEM_REPO_URL=https://github.com/hjelmn/xpmem && \
+#     export XPMEM_REPO_BRANCH=master && \
+#     export XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XX_XPMEM_VERSION} && \
+#     export XPMEM_INSTALL_DIR=${PREFIX}/ && \
+#     mkdir -p $XPMEM_SOURCE_DIR && \
+#     cd $XPMEM_SOURCE_DIR && \
+#     git clone -b ${XPMEM_REPO_BRANCH} ${XPMEM_REPO_URL} ${XPMEM_SOURCE_DIR} && \
+#     cd ${XPMEM_SOURCE_DIR} && \
+#     ./autogen.sh && \
+#     ./configure \
+#         --prefix=${XPMEM_INSTALL_DIR}  \
+#         --with-default-prefix=${XPMEM_INSTALL_DIR} \
+#         --with-module=/usr/src/linux-headers-$(uname -r) \
+#         && \
+#     make -j 4 \
+#      || exit 1  \
+#      && make install || echo "XPMEM make install problem (continue anyway)"
+# 
+# ENV XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XX_XPMEM_VERSION}
+# ENV XPMEM_INSTALL_DIR=${PREFIX}
+# 
+# 
+# 
+# # TJN: NOTE I am using the '--with-rdmacm=no' option for now to disable IB
+# # UCX
+# RUN echo "BUILD UCX" && \
+#     export UCX_REPO_URL=https://github.com/openucx/ucx.git && \
+#     export UCX_REPO_BRANCH=master && \
+#     export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION} && \
+#     export UCX_INSTALL_DIR=${PREFIX}/ && \
+#     mkdir -p $UCX_SOURCE_DIR && \
+#     cd $UCX_SOURCE_DIR && \
+#     git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
+#     cd ${UCX_SOURCE_DIR} && \
+#     ./autogen.sh && \
+#     ./configure \
+#  --with-rdmacm=no \
+#         --with-xpmem=${XPMEM_INSTALL_DIR} \
+#         --prefix=${UCX_INSTALL_DIR} \
+#         && \
+#     make -j 4 && \
+#     make install || exit 1
+# 
+# ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION}
+# ENV UCX_INSTALL_DIR=${PREFIX}
+# 
 
-ENV XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XX_XPMEM_VERSION}
-ENV XPMEM_INSTALL_DIR=${PREFIX}
-
-
-
-# TJN: NOTE I am using the '--with-rdmacm=no' option for now to disable IB
-# UCX
-RUN echo "BUILD UCX" && \
-    export UCX_REPO_URL=https://github.com/openucx/ucx.git && \
-    export UCX_REPO_BRANCH=master && \
-    export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION} && \
-    export UCX_INSTALL_DIR=${PREFIX}/ && \
-    mkdir -p $UCX_SOURCE_DIR && \
-    cd $UCX_SOURCE_DIR && \
-    git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
-    cd ${UCX_SOURCE_DIR} && \
-    ./autogen.sh && \
-    ./configure \
- --with-rdmacm=no \
-        --with-xpmem=${XPMEM_INSTALL_DIR} \
-        --prefix=${UCX_INSTALL_DIR} \
-        && \
-    make -j 4 && \
-    make install || exit 1
-
-ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION}
-ENV UCX_INSTALL_DIR=${PREFIX}
+echo "TODO: '/usr/local/src/finish_build.sh' from container"
+echo "TODO: Remember to bind mount in kernel header: "
+echo "       docker run -ti -v /usr/src:/usr/src ...."
 
 
 # # TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
@@ -268,5 +280,5 @@ ENV UCX_INSTALL_DIR=${PREFIX}
 # USER mpiuser
 
 
-CMD ["/bin/sh"]
+CMD ["/bin/bash"]
 

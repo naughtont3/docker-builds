@@ -9,6 +9,20 @@ Base image layer with software dependencies for ORNL-OpenSHMEM.
  - NOTE: Currently using 'naughtont3' for DockerHUB but account,
          but ultimately this should be changed.
 
+ - NOTE: This just builds Libevent/PMIX/OMPI.  Need to run `finish_build.sh`
+         from within container to build XPMEM/UCX/OSHMEM.
+         (This is primarily due to the XPMEM kernel dependency, so we need
+          the linux-headers from the target machine, `/usr/src/$(uname -r)`.)
+
+         Example commands:
+
+         ```
+             # Start in daemon mode
+            docker run -d -P --name mydemo \
+                -v /usr/src:/usr/src naughtont3/ornl-oshmem-base /bin/sleep infinity
+            docker exec -ti mydemo /bin/bash
+            /usr/local/src/finish_build.sh
+        ```
 
 
 Getting Docker
