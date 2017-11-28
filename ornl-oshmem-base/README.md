@@ -20,6 +20,17 @@ Base image layer with software dependencies for ORNL-OpenSHMEM.
 Getting Started
 ---------------
 
+ - NOTE: For now, I generally load `xpmem.ko` in host so it stays loaded.  
+         When testing, I set `/dev/xpmem` to world (777) readable (not 
+         appropriate for production use) and pass the device into container.  
+         We are still building XPMEM in container to have libs/headers.
+
+    ```
+      insmod xpmem.ko
+      chown 777 /dev/xpmem
+    ```
+
+
 - Run image (start container) in ''daemon'' mode with bind-mounted host kernel dir:
 
     ```
@@ -27,6 +38,7 @@ Getting Started
                 --name mydemo \
                 -v /usr/src:/usr/src \
                 -v /lib/modules:/lib/modules \
+                --device /dev/xpmem \
                 naughtont3/ornl-oshmem-base /bin/sleep infinity
     ```
 
