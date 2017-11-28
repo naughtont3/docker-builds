@@ -2,7 +2,8 @@
 
 username=naughtont3
 imagename=ornl-oshmem-base
-imagetag=16.04
+#imagetag=16.04
+imagetag=latest
 
 # Skip final "docker push" 1=skip, 0=push
 #skip_push=0
