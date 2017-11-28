@@ -257,9 +257,12 @@ ENV OMPI_INSTALL_DIR=${PREFIX}/
 # ENV UCX_INSTALL_DIR=${PREFIX}
 # 
 
-echo "TODO: '/usr/local/src/finish_build.sh' from container"
-echo "TODO: Remember to bind mount in kernel header: "
-echo "       docker run -ti -v /usr/src:/usr/src ...."
+RUN echo "*******************************************************" \
+    && echo "DONE" \
+    && echo "TODO: '/usr/local/src/finish_build.sh' from container" \
+    && echo "TODO: Remember to bind mount in kernel header: " \
+    && echo "       docker run -ti -v /usr/src:/usr/src ...." \
+    && echo "*******************************************************" 
 
 
 # # TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
