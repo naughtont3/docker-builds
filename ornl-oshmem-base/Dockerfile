@@ -271,8 +271,8 @@ RUN echo "*******************************************************" \
 
 # TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
 RUN useradd -c "OSHMEM User" -m -p 'dabears' -s /bin/bash oshuser  \
-    && su -c "echo 'export LD_LIBRARY_PATH=/usr/local/lib/openmpi/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" oshuser  \
-    && su -c "echo 'export PATH=/usr/local/lib/openmpi/bin/:\$PATH' >> ~/.bashrc" oshuser \
+    && su -c "echo 'export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH' >> ~/.bashrc" oshuser  \
+    && su -c "echo 'export PATH=/usr/local/bin:\$PATH' >> ~/.bashrc" oshuser \
     && su -c "/usr/bin/ssh-keygen -t ecdsa -f ~/.ssh/id_ecdsa -q -N ''" oshuser \
     && su -c "cat ~/.ssh/id_ecdsa.pub  >> ~/.ssh/authorized_keys" oshuser \
     && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
