@@ -94,6 +94,7 @@ RUN apt-get update \
 # Install various useful/prereq packages
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
+        ack-grep \
         autoconf \
         automake \
         bash \
