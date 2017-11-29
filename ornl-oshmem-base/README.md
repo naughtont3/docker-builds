@@ -117,6 +117,25 @@ Getting Docker
     docker push naughtont3/ornl-oshmem-base
   ```
 
+ - Using a debugger (gdb) for process attach with Docker containers requires
+   access to the `SYS_PTRACE` capability.  You can start the container with
+   this capability as follows:
+
+    ```
+    docker run \
+        --cap-add=SYS_PTRACE \
+        -ti --name mydemo \
+        naughtont3/ornl-oshmem bash
+    ```
+
+   Then from another instance (e.g., `docker exec -ti mydemo bash`) you
+   could attach to the running process for debugging, e.g., assuming `PID=57`.
+
+    ```
+    docker exec mydemo bash
+    oshuser@e7f3daf24a2a:$ gdb --pid=57 ./hello_oshmem_c
+    ```
+
 
 Building 'ornl-oshmem-base' Docker Image
 ---------------------------------------
