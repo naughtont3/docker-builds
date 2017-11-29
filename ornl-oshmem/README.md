@@ -1,70 +1,31 @@
-ornl-oshmem-base
+ornl-oshmem
 ================
 
-Base image layer with software dependencies for ORNL-OpenSHMEM.
+ORNL-OpenSHMEM container
 
- - NOTE: If using Private Github repository, see notes for
+ - NOTE: Using Private Github repository, see notes for
          generating a 'Personal Access Tokens'.
 
- - NOTE: Currently using 'naughtont3' for DockerHub account,
-         but ultimately this should be changed.
+ - NOTE: DO **NOT** PUSH THIS IMAGE TO DockerHub
+         (OSHMEM source is currently private).
 
- - NOTE: This builds Libevent/PMIX/OMPI/UCX to provide a base layer.
-         Then the OSHMEM is built in another image layer that uses
-         this base image.
+ - NOTE: All dependencies are build in the base layer `ornl-oshmem-base`,
+         also that creates the `oshuser`.
 
- - NOTE: This creates the user 'oshuser' to allow running as non-root user.
+ - NOTE: All source is in `/usr/local/src`
 
+ - NOTE: Source this file `/usr/local/src/env_oshmem-develop.sh` to setup
+         environment (if not already setup).
 
 Getting Started
 ---------------
 
-- NOTE: Generally you will just use the 'ornl-oshmem' image, but it
-        may be useful to use this 'ornl-oshmem-base' layer directly
-        for testing/development.  Therefore, we give example for a "daemon"
-        style usage mode where the container remains running in background.
-
-- Run image (start container) in ''daemon'' mode:
+- Run image (start container): 
 
     ```
-        docker run -d -P  \
-                --name mydemo \
-                naughtont3/ornl-oshmem-base /bin/sleep infinity
+        docker run -ti naughtont3/ornl-oshmem bash
     ```
 
-- Attach to the running container:
-
-    ```
-        docker exec -ti mydemo /bin/bash
-    ```
-
-- Finish setup/build OSHMEM (skipping already built steps):
-
-    ```
-		root@ed2ebcb10457:/# /usr/local/src/
-		root@ed2ebcb10457:/# ./build_ornloshm-develop.sh -L -P -O -U
-		SKIP LIBEVENT
-		SKIP PMIX
-		SKIP OMPI
-		SKIP UCX
-		SKIP ORNLOSHMEM
-		BUILD ORNL-OpenSHMEM
-               ...
-		   ...<snip>...
-               ...
-		##################################################################
-		  Source dir: /usr/local/src/
-		 Install dir: /usr/local/
-
-		  Start time: Wed Nov 29 10:18:16 EST 2017
-		 Finish time: Wed Nov 29 10:18:16 EST 2017
-		##################################################################
-		root@ed2ebcb10457:/# source /usr/local/src/env_oshmem-develop.sh
-		root@ed2ebcb10457:/# which orterun
-		/usr/local/bin/orterun
-		root@ed2ebcb10457:/# which oshcc
-		/usr/local/bin/oshcc
-    ```
 
 Getting Docker
 --------------
@@ -82,14 +43,14 @@ Getting Docker
 - Run image (start container) in ''daemon'' mode:
 
   ```
-    docker run -d -P --name <NAME> naughtont3/ornl-oshmem-base /bin/sleep infinity
+    docker run -d -P --name <NAME> naughtont3/ornl-oshmem /bin/sleep infinity
   ```
 
 - Run image (start container) in ''daemon'' mode with bind-mounted host dir:
 
   ```
     docker run -d -P --name mydemo \
-           -v /home/data:/data  naughtont3/ornl-oshmem-base /bin/sleep infinity
+           -v /home/data:/data  naughtont3/ornl-oshmem /bin/sleep infinity
   ```
 
 - Attach to the running container (assuming name ''mydemo''):
@@ -101,7 +62,7 @@ Getting Docker
 - (Alternate) Run image (start container) directly (non-daemon mode):
 
   ```
-    docker exec -ti naughtont3/ornl-oshmem-base /bin/bash
+    docker exec -ti naughtont3/ornl-oshmem /bin/bash
   ```
 
 - Removing the container (and their volumes to avoid dangling volumes!)
@@ -113,12 +74,12 @@ Getting Docker
 - Build/Upload image:
 
   ```
-    docker build -t="naughtont3/ornl-oshmem-base" .
-    docker push naughtont3/ornl-oshmem-base
+    docker build -t="naughtont3/ornl-oshmem" .
+    docker push naughtont3/ornl-oshmem
   ```
 
 
-Building 'ornl-oshmem-base' Docker Image
+Building 'ornl-oshmem' Docker Image
 ---------------------------------------
 - Download the 'docker-build' repo with docker build files and support material
   (TODO: FIXME - use proper URL for the docker files)
@@ -127,23 +88,23 @@ Building 'ornl-oshmem-base' Docker Image
     git clone https://github.com/naughtont3/docker-builds.git
   ```
 
-- Change to the 'ornl-oshmem-base' area
+- Change to the 'ornl-oshmem' area
 
   ```
-    cd docker-builds/ornl-oshmem-base/
+    cd docker-builds/ornl-oshmem/
   ```
 
 - (Option-1) Run the `dockerhub-build-push.sh` script.
 
 - (Option-2) Run `docker build` directly
-   - Note: In some case may need to pass a Github token
-     via 'mytoken' file  (See 'Personal Access Tokens'
-     below for more details.)
+   - Note: pass a Github token via 'mytoken' file for a
+           fully automated checkout/build. 
+           (See 'Personal Access Tokens' below for more details.)
 
   ```
     docker build \
         --build-arg=GITHUB_TOKEN=$(cat mytoken) \
-       -t="naughtont3/ornl-oshmem-base" .
+       -t="naughtont3/ornl-oshmem" .
   ```
 
 - See also the Docker build/push helper script [dockerhub-build-push.sh](dockerhub-build-push.sh)
@@ -177,14 +138,13 @@ the private repositories.
 - Step-3) Run Docker build, passing the  ```--build-arg``` (reading token from file):
 
    ```
-    docker build --build-arg=GITHUB_TOKEN=$(cat mytoken) -t="naughtont3/ornl-oshmem-base" .
+    docker build --build-arg=GITHUB_TOKEN=$(cat mytoken) -t="naughtont3/ornl-oshmem" .
    ```
 
 - ***NOTE*** DO NOT SAVE YOUR TOKEN TO REPOSITORY OR GIVE TO OTHER USERS!
 
 - Note: If using the  'dockerhub-build-push.sh', it recognized a file named
     ```mytoken``` in current working directory and will pass that seamlessly.
-
 
 
 NOTES

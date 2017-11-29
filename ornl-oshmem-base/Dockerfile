@@ -17,6 +17,9 @@
 ###########################################################################
 #
 # NOTES:
+# - 28nov2017: Disable use of XPMEM and now build UCX in image.
+#              Will put OSHMEM in separate image to keep private for moment.
+#
 # - 28nov2017: Comment out the XPMEM/UCX pieces due to kernel deps, run via
 #              'finish_build.sh' script instead (from within a container instance).
 # - 23nov2017: Initial creation based on existing container templates.
@@ -109,6 +112,8 @@ RUN apt-get -y update \
         libelf-dev \
         libibverbs-dev \
         libnuma-dev \
+        librdmacm-dev \
+        librdmacm1 \
         libtool \
         lsb-release \
         net-tools \
@@ -189,7 +194,8 @@ RUN echo "BUILD OMPI" && \
 ENV OMPI_SOURCE_DIR=${PREFIX}/src/ompi-${XX_OMPI_VERSION}
 ENV OMPI_INSTALL_DIR=${PREFIX}/
 
-# 
+####
+#
 # #####
 # # Build xpmem  (module)
 # # (note: we will keep module seperate and likely load in host
@@ -203,11 +209,11 @@ ENV OMPI_INSTALL_DIR=${PREFIX}/
 #         fi ; \
 #     fi
 # #####
-# 
+#
 # ####
 # # TJN: If make fails we error out, but we ignore errors from 'make install'
 # #      because that may be because we are not running as root (in some cases).
-# # 
+# #
 # # TODO: MAP IN THE HOST /usr/src/linux-headers-$(uname -r)
 # ####
 # # XPMEM (git)
@@ -229,45 +235,36 @@ ENV OMPI_INSTALL_DIR=${PREFIX}/
 #     make -j 4 \
 #      || exit 1  \
 #      && make install || echo "XPMEM make install problem (continue anyway)"
-# 
+#
 # ENV XPMEM_SOURCE_DIR=${PREFIX}/src/xpmem-${XX_XPMEM_VERSION}
 # ENV XPMEM_INSTALL_DIR=${PREFIX}
-# 
-# 
-# 
-# # TJN: NOTE I am using the '--with-rdmacm=no' option for now to disable IB
-# # UCX
-# RUN echo "BUILD UCX" && \
-#     export UCX_REPO_URL=https://github.com/openucx/ucx.git && \
-#     export UCX_REPO_BRANCH=master && \
-#     export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION} && \
-#     export UCX_INSTALL_DIR=${PREFIX}/ && \
-#     mkdir -p $UCX_SOURCE_DIR && \
-#     cd $UCX_SOURCE_DIR && \
-#     git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
-#     cd ${UCX_SOURCE_DIR} && \
-#     ./autogen.sh && \
-#     ./configure \
-#  --with-rdmacm=no \
-#         --with-xpmem=${XPMEM_INSTALL_DIR} \
-#         --prefix=${UCX_INSTALL_DIR} \
-#         && \
-#     make -j 4 && \
-#     make install || exit 1
-# 
-# ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION}
-# ENV UCX_INSTALL_DIR=${PREFIX}
-# 
+#
+# TJN: UCX - if using 'xpmem' add following to UCX configure
+#        --with-xpmem=${XPMEM_INSTALL_DIR} \
+####
 
-RUN echo "*******************************************************" \
-    && echo "DONE" \
-    && echo "TODO: '/usr/local/src/finish_build.sh' from container" \
-    && echo "TODO: Remember to bind mount in kernel header: " \
-    && echo "       docker run -ti -v /usr/src:/usr/src ...." \
-    && echo "" \
-    && echo " See also: README.md 'Getting Started'" \
-    && echo "*******************************************************" 
 
+# UCX
+RUN echo "BUILD UCX" && \
+    export UCX_REPO_URL=https://github.com/openucx/ucx.git && \
+    export UCX_REPO_BRANCH=master && \
+    export UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION} && \
+    export UCX_INSTALL_DIR=${PREFIX}/ && \
+    mkdir -p $UCX_SOURCE_DIR && \
+    cd $UCX_SOURCE_DIR && \
+    git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
+    cd ${UCX_SOURCE_DIR} && \
+    ./autogen.sh && \
+    ./configure \
+        --prefix=${UCX_INSTALL_DIR} \
+        && \
+    make -j 4 && \
+    make install || exit 1
+
+ENV UCX_SOURCE_DIR=${PREFIX}/src/ucx-${XX_UCX_VERSION}
+ENV UCX_INSTALL_DIR=${PREFIX}
+# Default to shared memory case
+ENV UCX_TLS="rc,sm"
 
 # TJN: ssh-keygen of /etc/ssh/ssh_host_ecdsa_key may exist, so just ';' not '&&' cmds
 RUN useradd -c "OSHMEM User" -m -p 'dabears' -s /bin/bash oshuser  \
@@ -284,9 +281,8 @@ RUN useradd -c "OSHMEM User" -m -p 'dabears' -s /bin/bash oshuser  \
 RUN chown -R oshuser ${PREFIX}/
 
 
-# TJN: Keeping default user as root for now
 # Default to non-root user ('oshuser')
-#USER oshuser
+USER oshuser
 
 
 CMD ["/bin/bash"]
