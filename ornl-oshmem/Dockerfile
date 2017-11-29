@@ -59,7 +59,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "BUILD ORNL-OpenSHMEM" && \
     if [ -z "$GITHUB_TOKEN" ] ; then \
        export ORNLOSHMEM_REPO_URL=https://github.com/ornl-languages/ornl-openshmem.git ; \
-    else ; \
+    else  \
        export ORNLOSHMEM_REPO_URL=https://${GITHUB_TOKEN}:x-oauth-basic@github.com/ornl-languages/ornl-openshmem.git ; \
     fi ; \
     export ORNLOSHMEM_REPO_BRANCH=ucx && \
@@ -82,10 +82,10 @@ RUN echo "BUILD ORNL-OpenSHMEM" && \
     make install || exit 1
 
 ENV ORNLOSHMEM_SOURCE_DIR=${PREFIX}/src/ucx-${XX_ORNLOSHMEM_VERSION}
-ENV ORNLOSHMEM_INSTALL_DIR=${PREFIX}/ 
+ENV ORNLOSHMEM_INSTALL_DIR=${PREFIX}/
 
-# Chown all the src code to 'oshuser'
-RUN chown -R oshuser ${PREFIX}/
+## Chown all the src code to 'oshuser'
+#RUN chown -R oshuser ${PREFIX}/
 
 # Default to non-root user ('oshuser')
 # (Note: user is created in base image layer.)
