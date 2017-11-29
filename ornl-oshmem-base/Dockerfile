@@ -108,6 +108,8 @@ RUN apt-get -y update \
         g++ \
         gcc \
         gfortran \
+        gdb \
+        gdbserver \
         git \
         iputils-ping \
         libelf-dev \
