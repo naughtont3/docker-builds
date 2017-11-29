@@ -63,7 +63,7 @@ RUN echo "BUILD ORNL-OpenSHMEM" && \
        export ORNLOSHMEM_REPO_URL=https://${GITHUB_TOKEN}:x-oauth-basic@github.com/ornl-languages/ornl-openshmem.git ; \
     fi ; \
     export ORNLOSHMEM_REPO_BRANCH=ucx && \
-    export ORNLOSHMEM_SOURCE_DIR=${PREFIX}/src/ucx-${XX_ORNLOSHMEM_VERSION} && \
+    export ORNLOSHMEM_SOURCE_DIR=${PREFIX}/src/ornl-openshmem-${XX_ORNLOSHMEM_VERSION} && \
     export ORNLOSHMEM_INSTALL_DIR=${PREFIX}/ && \
     mkdir -p $ORNLOSHMEM_SOURCE_DIR && \
     cd $ORNLOSHMEM_SOURCE_DIR && \
@@ -81,7 +81,7 @@ RUN echo "BUILD ORNL-OpenSHMEM" && \
     make -j 4 && \
     make install || exit 1
 
-ENV ORNLOSHMEM_SOURCE_DIR=${PREFIX}/src/ucx-${XX_ORNLOSHMEM_VERSION}
+ENV ORNLOSHMEM_SOURCE_DIR=${PREFIX}/src/ornl-openshmem-${XX_ORNLOSHMEM_VERSION}
 ENV ORNLOSHMEM_INSTALL_DIR=${PREFIX}/
 
 ## Chown all the src code to 'oshuser'
