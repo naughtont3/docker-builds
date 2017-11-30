@@ -49,10 +49,10 @@ if ! `echo $PATH | grep -q ${pmix_bin_path}` ; then
     export PATH="${pmix_bin_path}:$PATH"
 fi
 if [ "x$LD_LIBRARY_PATH" == "x" ] ; then
-    export LD_LIBRARY_PATH="${ucx_lib_path}"
+    export LD_LIBRARY_PATH="${pmix_lib_path}"
 else
-    if ! `echo $LD_LIBRARY_PATH | grep -q ${ucx_lib_path}` ; then
-        export LD_LIBRARY_PATH="${ucx_lib_path}:$LD_LIBRARY_PATH"
+    if ! `echo $LD_LIBRARY_PATH | grep -q ${pmix_lib_path}` ; then
+        export LD_LIBRARY_PATH="${pmix_lib_path}:$LD_LIBRARY_PATH"
     fi
 fi
 
@@ -61,10 +61,10 @@ if ! `echo $PATH | grep -q ${oshmem_bin_path}` ; then
     export PATH="${oshmem_bin_path}:$PATH"
 fi
 if [ "x$LD_LIBRARY_PATH" == "x" ] ; then
-    export LD_LIBRARY_PATH="${ucx_lib_path}"
+    export LD_LIBRARY_PATH="${oshmem_lib_path}"
 else
-    if ! `echo $LD_LIBRARY_PATH | grep -q ${ucx_lib_path}` ; then
-        export LD_LIBRARY_PATH="${ucx_lib_path}:$LD_LIBRARY_PATH"
+    if ! `echo $LD_LIBRARY_PATH | grep -q ${oshmem_lib_path}` ; then
+        export LD_LIBRARY_PATH="${oshmem_lib_path}:$LD_LIBRARY_PATH"
     fi
 fi
 
