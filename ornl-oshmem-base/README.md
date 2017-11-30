@@ -66,6 +66,24 @@ Getting Started
 		/usr/local/bin/oshcc
     ```
 
+
+- Another method is to start container in ''daemon'' mode
+  with debugger (ptrace) capabilties:
+
+    ```
+        docker run -d -P \
+                --cap-add=SYS_PTRACE \
+                --name mydemo  \
+                naughtont3/ornl-oshmem-base /bin/sleep infinity
+    ```
+
+  And then connect to the running container:
+
+    ```
+        docker exec -ti mydemo bash
+    ```
+
+
 Getting Docker
 --------------
 - Most distributions include Docker, but the version may be old.  For
