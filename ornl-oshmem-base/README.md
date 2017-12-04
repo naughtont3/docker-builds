@@ -1,7 +1,10 @@
-ornl-oshmem-base
-================
+NOTICE
+======
 
  - **THIS REPO HAS [MOVED](./MOVED.md)**
+
+ornl-oshmem-base
+================
 
 Base image layer with software dependencies for ORNL-OpenSHMEM.
 

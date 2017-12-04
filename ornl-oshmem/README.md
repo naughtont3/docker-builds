@@ -1,8 +1,11 @@
-ornl-oshmem
-================
+NOTICE
+======
 
  - **THIS REPO HAS [MOVED](./MOVED.md)**
 
+
+ornl-oshmem
+================
 
 ORNL-OpenSHMEM container
 
