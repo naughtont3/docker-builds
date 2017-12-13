@@ -103,12 +103,17 @@ die () {
 usage () {
     echo "Usage: $0  [-h]"
     echo " OPTIONS:"
-    echo "    -L       SKIP (L)ibevent"
-    echo "    -P       SKIP (P)MIx"
-    echo "    -O       SKIP (O)MPI/ORTE"
+    echo "    -L       SKIP (L)ibevent   ALL"
+    echo "    -l       SKIP (L)ibevent   download"
+    echo "    -P       SKIP (P)MIx       ALL"
+    echo "    -p       SKIP (P)MIx       download"
+    echo "    -O       SKIP (O)MPI/ORTE  ALL"
+    echo "    -o       SKIP (O)MPI/ORTE  download"
 #    echo "    -X       SKIP (X)PMEM"
-    echo "    -U       SKIP (U)CX"
-    echo "    -S       SKIP ORNL-Open(S)HMEM"
+    echo "    -U       SKIP (U)CX        ALL"
+    echo "    -u       SKIP (U)CX        download"
+    echo "    -S       SKIP ORNL-Open(S)HMEM  ALL"
+    echo "    -s       SKIP ORNL-Open(S)HMEM  download"
     echo ""
     echo "    -h       Print this help info"
     echo "    -d       Debug mode"
@@ -127,11 +132,16 @@ usage () {
 ###
 
 SKIP_LIBEVENT=0         # -L  skip (L)ibevent
+SKIP_LIBEVENT_DL=0      # -l  skip (L)ibevent  download
 SKIP_PMIX=0             # -P  skip (P)MIx
+SKIP_PMIX_DL=0          # -p  skip (P)MIx      download
 SKIP_OMPI=0             # -O  skip (O)MPI/ORTE
+SKIP_OMPI_DL=0          # -o  skip (O)MPI/ORTE download
 #SKIP_XPMEM=0            # -X  skip (X)PMEM
 SKIP_UCX=0              # -U  skip (U)CX
+SKIP_UCX_DL=0           # -u  skip (U)CX       download
 SKIP_ORNLOSHMEM=0       # -S  skip ORNL-Open(S)HMEM
+SKIP_ORNLOSHMEM_DL=0    # -s  skip ORNL-Open(S)HMEM  download
 
 opt_showhelp=0          # -h  show usage/help
 DEBUG=0                 # -d  debug mode
@@ -141,17 +151,21 @@ time_begin=`date`
 
 #
 # Process ARGV/cmd-line
-# TODO: ADD SUPPORT FOR '--skip-<pkgname>'
 #
 OPTIND=1
-while getopts hdLPOXUS opt ; do
+while getopts hdLPOXUSlpous opt ; do
     case "$opt" in
         L)  SKIP_LIBEVENT=1;;           # -L  skip (L)ibevent
+        l)  SKIP_LIBEVENT_DL=1;;        # -l  skip (L)ibevent  download
         P)  SKIP_PMIX=1;;               # -P  skip (P)MIx
+        p)  SKIP_PMIX_DL=1;;            # -p  skip (P)MIx      download
         O)  SKIP_OMPI=1;;               # -O  skip (O)MPI/ORTE
+        o)  SKIP_OMPI_DL=1;;            # -o  skip (O)MPI/ORTE download
 #        X)  SKIP_XPMEM=1;;              # -X  skip (X)PMEM
         U)  SKIP_UCX=1;;                # -U  skip (U)CX
+        u)  SKIP_UCX_DL=1;;             # -u  skip (U)CX       download
         S)  SKIP_ORNLOSHMEM=1;;         # -S  skip ORNL-Open(S)HMEM
+        s)  SKIP_ORNLOSHMEM_DL=1;;      # -s  skip ORNL-Open(S)HMEM download
         h)  opt_showhelp=1;;            # -h  show usage/help
         d)  DEBUG=1;;                   # -d  debug mode
     esac
@@ -165,12 +179,17 @@ fi
 
 if [ $DEBUG -ne 0 ] ; then
     echo "DBG:       *** DEBUG MODE ***"
-    echo "DBG:   SKIP_LIBEVENT = '$SKIP_LIBEVENT'"
-    echo "DBG:       SKIP_PMIX = '$SKIP_PMIX'"
-    echo "DBG:       SKIP_OMPI = '$SKIP_OMPI'"
+    echo "DBG:      SKIP_LIBEVENT = '$SKIP_LIBEVENT'"
+    echo "DBG:   SKIP_LIBEVENT_DL = '$SKIP_LIBEVENT_DL'"
+    echo "DBG:          SKIP_PMIX = '$SKIP_PMIX'"
+    echo "DBG:       SKIP_PMIX_DL = '$SKIP_PMIX_DL'"
+    echo "DBG:          SKIP_OMPI = '$SKIP_OMPI'"
+    echo "DBG:       SKIP_OMPI_DL = '$SKIP_OMPI_DL'"
 #    echo "DBG:      SKIP_XPMEM = '$SKIP_XPMEM'"
-    echo "DBG:        SKIP_UCX = '$SKIP_UCX'"
-    echo "DBG: SKIP_ORNLOSHMEM = '$SKIP_ORNLOSHMEM'"
+    echo "DBG:           SKIP_UCX = '$SKIP_UCX'"
+    echo "DBG:        SKIP_UCX_DL = '$SKIP_UCX_DL'"
+    echo "DBG:    SKIP_ORNLOSHMEM = '$SKIP_ORNLOSHMEM'"
+    echo "DBG: SKIP_ORNLOSHMEM_DL = '$SKIP_ORNLOSHMEM_DL'"
     echo ""
     echo "DBG: libevent_version = $libevent_version"
     echo "DBG: libevent_archive = $libevent_archive"
@@ -213,10 +232,13 @@ if [ $SKIP_LIBEVENT = 0 ] ; then
     export LIBEVENT_SOURCE_DIR=$source_base_dir/libevent-${libevent_version} && \
     export LIBEVENT_INSTALL_DIR=$install_base_dir && \
     export LIBEVENT_ARCHIVE_FILE=`echo "${LIBEVENT_ARCHIVE_URL##*/}"` && \
-    mkdir -p $LIBEVENT_SOURCE_DIR && \
-    cd $LIBEVENT_SOURCE_DIR && \
-    wget --quiet $LIBEVENT_ARCHIVE_URL && \
-    tar -zxf ${LIBEVENT_ARCHIVE_FILE} -C ${LIBEVENT_SOURCE_DIR} --strip-components=1 && \
+    if [ $SKIP_LIBEVENT_DL = 0 ] ; then \
+        mkdir -p $LIBEVENT_SOURCE_DIR && \
+        cd $LIBEVENT_SOURCE_DIR && \
+        wget --quiet $LIBEVENT_ARCHIVE_URL && \
+        tar -zxf ${LIBEVENT_ARCHIVE_FILE} -C ${LIBEVENT_SOURCE_DIR} --strip-components=1 && \
+        echo "LIBEVENT DOWNLOAD STEP DONE" ; \
+    fi && \
     cd ${LIBEVENT_SOURCE_DIR} && \
     ./configure \
         --prefix=${LIBEVENT_INSTALL_DIR} \
@@ -242,10 +264,13 @@ if [ $SKIP_PMIX = 0 ] ; then
     export PMIX_SOURCE_DIR=$source_base_dir/pmix-${pmix_version} && \
     export PMIX_INSTALL_DIR=$install_base_dir && \
     export PMIX_ARCHIVE_FILE=`echo "${PMIX_ARCHIVE_URL##*/}"` && \
-    mkdir -p $PMIX_SOURCE_DIR && \
-    cd $PMIX_SOURCE_DIR && \
-    wget --quiet $PMIX_ARCHIVE_URL && \
-    tar -zxf ${PMIX_ARCHIVE_FILE} -C ${PMIX_SOURCE_DIR} --strip-components=1 && \
+    if [ $SKIP_PMIX_DL = 0 ] ; then \
+        mkdir -p $PMIX_SOURCE_DIR && \
+        cd $PMIX_SOURCE_DIR && \
+        wget --quiet $PMIX_ARCHIVE_URL && \
+        tar -zxf ${PMIX_ARCHIVE_FILE} -C ${PMIX_SOURCE_DIR} --strip-components=1 && \
+        echo "PMIX DOWNLOAD STEP DONE" ; \
+    fi && \
     cd ${PMIX_SOURCE_DIR} && \
     ./autogen.pl && \
     ./configure \
@@ -272,10 +297,13 @@ if [ $SKIP_OMPI = 0 ] ; then
     export OMPI_SOURCE_DIR=$source_base_dir/ompi-${ompi_version} && \
     export OMPI_INSTALL_DIR=$install_base_dir && \
     export OMPI_ARCHIVE_FILE=`echo "${OMPI_ARCHIVE_URL##*/}"` && \
-    mkdir -p $OMPI_SOURCE_DIR && \
-    cd $OMPI_SOURCE_DIR && \
-    wget --quiet $OMPI_ARCHIVE_URL && \
-    tar -zxf ${OMPI_ARCHIVE_FILE} -C ${OMPI_SOURCE_DIR} --strip-components=1 && \
+    if [ $SKIP_OMPI_DL = 0 ] ; then \
+        mkdir -p $OMPI_SOURCE_DIR && \
+        cd $OMPI_SOURCE_DIR && \
+        wget --quiet $OMPI_ARCHIVE_URL && \
+        tar -zxf ${OMPI_ARCHIVE_FILE} -C ${OMPI_SOURCE_DIR} --strip-components=1 && \
+        echo "OMPI DOWNLOAD STEP DONE" ; \
+    fi && \
     cd ${OMPI_SOURCE_DIR} && \
     ./autogen.pl --no-ompi -no-oshmem && \
     ./configure \
@@ -304,9 +332,12 @@ fi
 #     export XPMEM_REPO_BRANCH=$xpmem_repo_branch && \
 #     export XPMEM_SOURCE_DIR=$source_base_dir/xpmem-${xpmem_version} && \
 #     export XPMEM_INSTALL_DIR=$install_base_dir && \
-#     mkdir -p $XPMEM_SOURCE_DIR && \
-#     cd $XPMEM_SOURCE_DIR && \
-#     git clone -b ${XPMEM_REPO_BRANCH} ${XPMEM_REPO_URL} ${XPMEM_SOURCE_DIR} && \
+#     if [ $SKIP_XPMEM_DL = 0 ] ; then \
+#         mkdir -p $XPMEM_SOURCE_DIR && \
+#         cd $XPMEM_SOURCE_DIR && \
+#         git clone -b ${XPMEM_REPO_BRANCH} ${XPMEM_REPO_URL} ${XPMEM_SOURCE_DIR} && \
+#         echo "XPMEM DOWNLOAD STEP DONE" ; \
+#     fi && \
 #     cd ${XPMEM_SOURCE_DIR} && \
 #     ./autogen.sh && \
 #     ./configure \
@@ -342,9 +373,12 @@ if [ $SKIP_UCX = 0 ] ; then
     export UCX_REPO_BRANCH=$ucx_repo_branch && \
     export UCX_SOURCE_DIR=$source_base_dir/ucx-${ucx_version} && \
     export UCX_INSTALL_DIR=$install_base_dir && \
-    mkdir -p $UCX_SOURCE_DIR && \
-    cd $UCX_SOURCE_DIR && \
-    git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
+    if [ $SKIP_UCX_DL = 0 ] ; then \
+        mkdir -p $UCX_SOURCE_DIR && \
+        cd $UCX_SOURCE_DIR && \
+        git clone -b ${UCX_REPO_BRANCH} ${UCX_REPO_URL} ${UCX_SOURCE_DIR} && \
+        echo "UCX DOWNLOAD STEP DONE" ; \
+    fi && \
     cd ${UCX_SOURCE_DIR} && \
     ./autogen.sh && \
     ./configure \
@@ -371,9 +405,12 @@ if [ $SKIP_ORNLOSHMEM = 0 ] ; then
     export ORNLOSHMEM_REPO_BRANCH=$ornloshmem_repo_branch && \
     export ORNLOSHMEM_SOURCE_DIR=$source_base_dir/ornloshmem-${ornloshmem_version} && \
     export ORNLOSHMEM_INSTALL_DIR=$install_base_dir && \
-    mkdir -p $ORNLOSHMEM_SOURCE_DIR && \
-    cd $ORNLOSHMEM_SOURCE_DIR && \
-    git clone -b ${ORNLOSHMEM_REPO_BRANCH} ${ORNLOSHMEM_REPO_URL} ${ORNLOSHMEM_SOURCE_DIR} && \
+    if [ $SKIP_ORNLOSHMEM_DL = 0 ] ; then \
+        mkdir -p $ORNLOSHMEM_SOURCE_DIR && \
+        cd $ORNLOSHMEM_SOURCE_DIR && \
+        git clone -b ${ORNLOSHMEM_REPO_BRANCH} ${ORNLOSHMEM_REPO_URL} ${ORNLOSHMEM_SOURCE_DIR} && \
+        echo "ORNLOSHMEM DOWNLOAD STEP DONE" ; \
+    fi && \
     cd ${ORNLOSHMEM_SOURCE_DIR} && \
     ./autogen.sh && \
     ./configure \
