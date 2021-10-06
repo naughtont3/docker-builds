@@ -15,10 +15,14 @@
 FROM ubuntu:20.04
 MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 
+# This will prevent questions from being asked during the install
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN useradd -c "thomas test" -m -p 'dabears' -s /bin/bash tjn && \
     mkdir -p /home/tjn/bin
 
 ADD files/show-dev-tools.sh /home/tjn/bin/show-dev-tools.sh
+ADD files/TJN-SPACK.md      /home/tjn/TJN-SPACK.md
 ENV PATH=/home/tjn/bin:$PATH
 
 # Get certs so HTTPS requests (e.g., git clone's) work.
@@ -54,6 +58,9 @@ RUN apt-get -y update \
         make \
         net-tools \
         openssh-client \
+        patch \
+        python3 \
+        python3-venv \
         rsync \
         strace \
         sudo \
@@ -63,12 +70,11 @@ RUN apt-get -y update \
         zlib1g-dev \
     && apt-get clean
 
-
-
 USER tjn
 
-RUN git clone https://github.com/spack/spack ~/spack && \
-    source ~/spack/share/spack/setup-env.sh
+RUN git clone https://github.com/spack/spack ~/spack \
+    && echo "# TJN: Add spack env setup"              >> /home/tjn/.bashrc \
+    && echo "source ~/spack/share/spack/setup-env.sh" >> /home/tjn/.bashrc
 
 # Default to runscript
 #CMD ["/usr/bin/sleep", "infinity"]
