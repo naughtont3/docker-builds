@@ -18,6 +18,17 @@ TJN Spack Notes
     time spack spec zlib
    ```
 
+ - Setup modules (so can use `module avail`, etc.)
+
+   ```
+    spack install lmod
+
+    source $(spack location -i lmod)/lmod/lmod/init/bash
+
+    source share/spack/setup-env.sh
+   ```
+
+
  - Setup compilers (use local gcc)
 
    ```
