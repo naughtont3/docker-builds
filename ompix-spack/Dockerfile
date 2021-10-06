@@ -67,6 +67,7 @@ RUN apt-get -y update \
         telnet \
         vim \
         wget \
+        xz-utils \
         zlib1g-dev \
     && apt-get clean
 
