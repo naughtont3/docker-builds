@@ -19,10 +19,19 @@ MAINTAINER Thomas Naughton <naughtont@ornl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN useradd -c "thomas test" -m -p 'dabears' -s /bin/bash tjn && \
-    mkdir -p /home/tjn/bin
+    mkdir -p /home/tjn/bin && \
+    mkdir -p /home/tjn/mpitests && \
+    mkdir -p /home/tjn/mpitests/all2all && \
+    mkdir -p /home/tjn/mpitests/hello
+
+ADD files/TJN-SPACK.md                     /home/tjn/TJN-SPACK.md
+ADD files/mpitests/all2all/a2a_test.c      /home/tjn/mpitests/all2all/a2a_test.c
+ADD files/mpitests/all2all/a2a_test_loop.c /home/tjn/mpitests/all2all/a2a_test_loop.c
+ADD files/mpitests/all2all/Makefile        /home/tjn/mpitests/all2all/Makefile
+ADD files/mpitests/hello/mpiexample.c      /home/tjn/mpitests/hello/mpiexample.c
+ADD files/mpitests/hello/Makefile          /home/tjn/mpitests/hello/Makefile
 
 ADD files/show-dev-tools.sh /home/tjn/bin/show-dev-tools.sh
-ADD files/TJN-SPACK.md      /home/tjn/TJN-SPACK.md
 ENV PATH=/home/tjn/bin:$PATH
 
 # Get certs so HTTPS requests (e.g., git clone's) work.
