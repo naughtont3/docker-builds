@@ -93,6 +93,7 @@ RUN useradd -c "LaTex User" -m -p 'dabears' -s /bin/bash $MY_USER \
     && su -c "echo '    br = branch'      >> ~/.gitconfig" $MY_USER \
     && su -c "echo '    co = checkout'    >> ~/.gitconfig" $MY_USER \
     && su -c "echo '    ls = ls-files'    >> ~/.gitconfig" $MY_USER \
+    && su -c "mkdir /home/$MY_USER/sharedir" $MY_USER \
     && echo "LaTeX User ($MY_USER) created"
 
 # Default to running as our user
