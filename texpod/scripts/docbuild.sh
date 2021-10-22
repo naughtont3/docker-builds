@@ -8,7 +8,7 @@
 GUESTDIR=/home/texuser/sharedir
 
 # Path to document checkout in shared dir
-DOCDIR=$GUESTDIR/example-doc1/tex/ornl-TM-report-foo1
+DOCDIR=$GUESTDIR/doc1
 
 MYNAME=texdev
 

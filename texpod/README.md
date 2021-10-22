@@ -7,42 +7,44 @@ The examples below use my example LaTeX doc,
 replace that with your LaTeX doc.
 
 
-Suggested Usage
----------------
+Example Usage
+-------------
 
- 1. Checkout the document to build that will be our host share dir
+ 1. Got to parent location of LaTeX source
 
     ```
-        mkdir hostshare/
-        cd hostshare/
-         # Git clone my latex doc here
-         # e.g., git clone https://code.ornl.gov/tjn3/example-doc1.git
+       cd ~/tex/
     ```
 
- 2. Start persistent container called `texdev` with host share directory
-    as bind mount.
+ 2. Launch persistent `texdev` container with host directory
+    containing sources (`$PWD`) as shared directory via bind mount.
     (Note: Default user has `/home/texuser/sharedir` in $HOME directory.)
 
-  ```
-     docker run \
-        -d \
-        --rm \
-        --name texdev \
-        -v hostshare:/home/texuser/sharedir \
-        naughtont3/texpod
-        /usr/bin/sleep infinity
-  ```
+    ```
+       docker \
+         run \
+         -d \
+         --rm \
+         --name texdev \
+         -v $PWD:/home/texuser/sharedir \
+         naughtont3/texpod \
+         /usr/bin/sleep infinity
+    ```
 
-  3. From host, move to source and build using the container sharedir
-     (Note: The docker 'make' command runs inside container so pathing
-      is as it would be inside the container.)
+  3. From host, move to LaTeX source to edit/build
+      - Note: The `make` command runs within the container using
+        the bind mounted source dir shared between host/container.
+        So, pathing is as it would be inside the container.)
 
   ```
-     cd hostshare/example-doc1/tex/ornl-TM-report-foo1/
+     cd doc1/
+
+      # Make edits to document
+     vi report.tex
 
        # Runs make inside container
      docker exec texdev \
-       make -C /home/texuser/sharedir/example-doc1/tex/ornl-TM-report-foo1/
+       make -C /home/texuser/sharedir/doc1
 
        # Resulting PDF available on host for easy viewing
      open report.pdf
@@ -58,7 +60,13 @@ Suggested Usage
 docbuild.sh script
 ---------------------
 
-Useful script for step 3
+Useful script for step 3, helpful to add as a `Makefile` target.
+
+Possibly need to customize the following script variables:
+ - `DOCDIR` to proper path for LaTeX source dir to build
+   (pathing is as it would be from inside container)
+
+ - `MYNAME` to name of container (if not `texdev`)
 
   ```
         #!/bin/bash
@@ -71,7 +79,7 @@ Useful script for step 3
         GUESTDIR=/home/texuser/sharedir
 
         # Path to document checkout in shared dir
-        DOCDIR=$GUESTDIR/example-doc1/tex/ornl-TM-report-foo1
+        DOCDIR=$GUESTDIR/doc1
 
         MYNAME=texdev
 
@@ -80,6 +88,7 @@ Useful script for step 3
             $MYNAME \
             make -C $DOCDIR
   ```
+
 
 Notes
 -----

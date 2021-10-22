@@ -1,6 +1,9 @@
 #!/bin/bash
 
-HOSTDIR=$PWD/hostshare
+# Use current working dir as host dir
+HOSTDIR=$PWD
+
+# Path inside container (no need to change)
 GUESTDIR=/home/texuser/sharedir
 
 MYNAME=texdev
