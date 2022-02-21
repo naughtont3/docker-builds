@@ -74,6 +74,8 @@ RUN apt-get -y update \
         texlive-latex-extra \
         texlive-plain-generic \
         texlive-bibtex-extra \
+        texlive-science \
+        unzip \
         vim \
         wget \
         zlib1g-dev \
